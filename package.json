@@ -1,12 +1,31 @@
 {
-  "dependencies": {
+  "name": "stickerstore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+   "dependencies": {
     "dotenv": "^17.4.2",
     "pg": "^8.20.0"
   },
   "devDependencies": {
     "@types/node": "^25.7.0",
+    "@types/pg": "^8.20.0",
     "tsc": "^2.0.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
-  }
+  },
+  "scripts": {
+    "setup-dbs": "psql -f ./db/setup.sql"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tigejw/stickerstore.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tigejw/stickerstore/issues"
+  },
+  "homepage": "https://github.com/tigejw/stickerstore#readme"
 }
