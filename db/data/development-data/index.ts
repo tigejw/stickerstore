@@ -1,6 +1,6 @@
-import stickers from "./stickers";
-import stickerImages from "./sticker-images";
+import products from "./products";
+import productImages from "./product-images";
 import bundles from "./bundles";
-import bundleStickers from "./bundle-stickers";
+import bundleProducts from "./bundle-products";
 
-export default {stickers, stickerImages, bundles, bundleStickers}
+export default {products, productImages, bundles, bundleProducts}

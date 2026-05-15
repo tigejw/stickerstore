@@ -1,4 +1,4 @@
 \c sticker_store;
 
-SELECT * FROM stickers;
+SELECT * FROM products;
 SELECT * FROM bundles;

@@ -2,22 +2,23 @@ import format from "pg-format";
 import db from "../connection";
 import devData from "../data/development-data/index";
 const seed = ({}) => {
-  const { stickers, stickerImages, bundles, bundleStickers } = devData;
+  const { products, productImages, bundles, bundleProducts } = devData;
+
   return db
-    .query("DROP TABLE IF EXISTS bundle_stickers")
+    .query("DROP TABLE IF EXISTS bundle_products")
     .then(() => {
-      return db.query("DROP TABLE IF EXISTS sticker_images");
+      return db.query("DROP TABLE IF EXISTS product_images");
     })
     .then(() => {
       return db.query("DROP TABLE IF EXISTS bundles");
     })
     .then(() => {
-      return db.query("DROP TABLE IF EXISTS stickers");
+      return db.query("DROP TABLE IF EXISTS products");
     })
     .then(() => {
       return db.query(
-        `CREATE TABLE stickers (
-          sticker_id SERIAL PRIMARY KEY,
+        `CREATE TABLE products (
+          product_id SERIAL PRIMARY KEY,
           slug VARCHAR NOT NULL,
           name VARCHAR NOT NULL,
           description VARCHAR NOT NULL,
@@ -31,9 +32,9 @@ const seed = ({}) => {
     })
     .then(() => {
       return db.query(
-        `CREATE TABLE sticker_images (
-          sticker_image_id SERIAL PRIMARY KEY,
-          sticker_id INT NOT NULL REFERENCES stickers(sticker_id) ON DELETE CASCADE,
+        `CREATE TABLE product_images (
+          product_image_id SERIAL PRIMARY KEY,
+          product_id INT NOT NULL REFERENCES products(product_id) ON DELETE CASCADE,
           image VARCHAR NOT NULL,
           thumbnail VARCHAR NOT NULL,
           alt_text VARCHAR NOT NULL
@@ -53,18 +54,18 @@ const seed = ({}) => {
     })
     .then(() => {
       return db.query(
-        `CREATE TABLE bundle_stickers (
+        `CREATE TABLE bundle_products (
           bundle_id INT NOT NULL REFERENCES bundles(bundle_id) ON DELETE CASCADE,
-          sticker_id INT NOT NULL REFERENCES stickers(sticker_id) ON DELETE CASCADE,
-          PRIMARY KEY (bundle_id, sticker_id)
+          product_id INT NOT NULL REFERENCES products(product_id) ON DELETE CASCADE,
+          PRIMARY KEY (bundle_id, product_id)
         );`,
       );
     })
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO stickers (slug, name, description, price, active, new) VALUES %L`,
-          stickers.map(({ slug, name, description, price, active, isNew }) => [
+          `INSERT INTO products (slug, name, description, price, active, new) VALUES %L`,
+          products.map(({ slug, name, description, price, active, isNew }) => [
             slug,
             name,
             description,
@@ -78,9 +79,9 @@ const seed = ({}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO sticker_images (sticker_id, image, thumbnail, alt_text) VALUES %L`,
-          stickerImages.map(({ sticker_id, image, thumbnail, alt_text }) => [
-            sticker_id,
+          `INSERT INTO product_images (product_id, image, thumbnail, alt_text) VALUES %L`,
+          productImages.map(({ product_id, image, thumbnail, alt_text }) => [
+            product_id,
             image,
             thumbnail,
             alt_text,
@@ -105,11 +106,14 @@ const seed = ({}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO bundle_stickers (bundle_id, sticker_id) VALUES %L`,
-          bundleStickers.map(({ bundle_id, sticker_id }) => [bundle_id, sticker_id]),
+          `INSERT INTO bundle_products (bundle_id, product_id) VALUES %L`,
+          bundleProducts.map(({ bundle_id, product_id }) => [
+            bundle_id,
+            product_id,
+          ]),
         ),
       );
-    })
+    });
 };
 
 export default seed;

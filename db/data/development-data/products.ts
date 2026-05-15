@@ -1,4 +1,4 @@
-type StickerSeed = {
+type ProductSeed = {
   slug: string;
   name: string;
   description: string;
@@ -7,14 +7,13 @@ type StickerSeed = {
   isNew: boolean;
 };
 
-const stickers: StickerSeed[] = [
+const products: ProductSeed[] = [
   {
     slug: "spinosaurus",
     name: "spinosaurus sticker",
     description: "a sticker of a spinosaurus",
     price: 899,
     active: true,
-    
     isNew: true,
   },
   {
@@ -115,4 +114,4 @@ const stickers: StickerSeed[] = [
   },
 ];
 
-export default stickers;
+export default products;
