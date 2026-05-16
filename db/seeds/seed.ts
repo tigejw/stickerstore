@@ -5,12 +5,18 @@ const seed = ({}) => {
   const { products, productImages, bundles, bundleProducts } = devData;
 
   return db
-    .query("DROP TABLE IF EXISTS bundle_products")
+    .query("DROP TABLE IF EXISTS order_products")
+    .then(() => {
+      return db.query("DROP TABLE IF EXISTS bundle_products");
+    })
     .then(() => {
       return db.query("DROP TABLE IF EXISTS product_images");
     })
     .then(() => {
       return db.query("DROP TABLE IF EXISTS bundles");
+    })
+    .then(() => {
+      return db.query("DROP TABLE IF EXISTS orders");
     })
     .then(() => {
       return db.query("DROP TABLE IF EXISTS products");
@@ -26,7 +32,7 @@ const seed = ({}) => {
           active BOOLEAN DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW(),
           size VARCHAR,
-          new BOOLEAN DEFAULT TRUE
+          is_new BOOLEAN DEFAULT TRUE
         );`,
       );
     })
@@ -62,9 +68,33 @@ const seed = ({}) => {
       );
     })
     .then(() => {
+      return db.query(`CREATE TABLE orders (
+        order_id SERIAL PRIMARY KEY,
+        stripe_session_id TEXT NOT NULL,
+        customer_email TEXT NOT NULL,
+        shipping_address_line1 TEXT NOT NULL,
+        shipping_address_line2 TEXT,
+        shipping_city TEXT NOT NULL,
+        shipping_postcode TEXT NOT NULL,
+        shipping_country TEXT NOT NULL,
+        total_price INT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'paid',
+        created_at TIMESTAMP DEFAULT NOW()
+      );`);
+    })
+    .then(() => {
+      return db.query(`CREATE TABLE order_products (
+        order_product_id SERIAL PRIMARY KEY,
+        order_id INT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+        product_id INT NOT NULL REFERENCES products(product_id) ON DELETE RESTRICT,
+        quantity INT NOT NULL DEFAULT 1,
+        price_at_purchase INT NOT NULL
+      );`);
+    })
+    .then(() => {
       return db.query(
         format(
-          `INSERT INTO products (slug, name, description, price, active, new) VALUES %L`,
+          `INSERT INTO products (slug, name, description, price, active, is_new) VALUES %L`,
           products.map(({ slug, name, description, price, active, isNew }) => [
             slug,
             name,
@@ -92,9 +122,8 @@ const seed = ({}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO bundles (bundle_id, name, slug, description, cover_image) VALUES %L`,
-          bundles.map(({ bundle_id, name, slug, description, cover_image }) => [
-            bundle_id,
+          `INSERT INTO bundles (name, slug, description, cover_image) VALUES %L`,
+          bundles.map(({ name, slug, description, cover_image }) => [
             name,
             slug,
             description,
