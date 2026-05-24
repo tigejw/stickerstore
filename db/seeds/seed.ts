@@ -1,7 +1,7 @@
 import format from "pg-format";
 import db from "../connection";
 import devData from "../data/development-data/index";
-const seed = ({}) => {
+const seed = (opts: Record<string, unknown> = {}) => {
   const { products, productImages, bundles, bundleProducts } = devData;
 
   return db
