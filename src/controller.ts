@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {readEndpointsData, selectAllProducts} from "./model";
+import { readEndpointsData, selectAllProducts, type ProductsQuery } from "./model";
 
 export const getEndpoints = (
   req: Request,
@@ -20,7 +20,8 @@ export const getProducts = (
   res: Response,
   next: NextFunction,
 ) => {
-  selectAllProducts()
+  const { sort_by, order, active, is_new } = req.query as ProductsQuery;
+  selectAllProducts({ sort_by, order, active, is_new })
     .then((productsData) => {
       res.status(200).send(productsData);
     })

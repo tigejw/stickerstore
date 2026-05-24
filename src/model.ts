@@ -1,5 +1,6 @@
 import fs from "fs/promises";
-import db from "../db/connection"
+import db from "../db/connection";
+
 export interface EndpointDocumentation {
   description: string;
   queries: string[];
@@ -7,6 +8,13 @@ export interface EndpointDocumentation {
 }
 
 export type EndpointsData = Record<string, EndpointDocumentation>;
+
+export interface ProductsQuery {
+  sort_by?: "price" | "created_at" | "name";
+  order?: "asc" | "desc";
+  active?: string;
+  is_new?: string;
+}
 
 interface Product {
   product_id: number;
@@ -23,6 +31,61 @@ interface Product {
   alt_text: string;
 }
 
+const allowedSortColumns: Record<NonNullable<ProductsQuery["sort_by"]>, string> = {
+  price: "products.price",
+  created_at: "products.created_at",
+  name: "products.name",
+};
+
+const allowedOrderDirections: Record<NonNullable<ProductsQuery["order"]>, string> = {
+  asc: "ASC",
+  desc: "DESC",
+};
+
+const parseBooleanQuery = (value: string | undefined) => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw { status: 400, msg: "Invalid query!" };
+};
+
+const parseSortBy = (sortBy: ProductsQuery["sort_by"]) => {
+  if (sortBy === undefined) {
+    return "products.product_id";
+  }
+
+  const sortColumn = allowedSortColumns[sortBy];
+
+  if (!sortColumn) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return sortColumn;
+};
+
+const parseOrder = (order: ProductsQuery["order"]) => {
+  if (order === undefined) {
+    return "ASC";
+  }
+
+  const orderDirection = allowedOrderDirections[order];
+
+  if (!orderDirection) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return orderDirection;
+};
+
 export function readEndpointsData(): Promise<EndpointsData> {
   return fs
     .readFile(`${__dirname}/../endpoints.json`, "utf8")
@@ -31,8 +94,30 @@ export function readEndpointsData(): Promise<EndpointsData> {
     });
 }
 
-export function selectAllProducts(): Promise<Product[]> {
-  return db.query(`
+export function selectAllProducts({
+  sort_by,
+  order,
+  active,
+  is_new,
+}: ProductsQuery): Promise<Product[]> {
+  const queryValues: Array<boolean> = [];
+  const whereClauses: string[] = [];
+  const activeFilter = parseBooleanQuery(active);
+  const newFilter = parseBooleanQuery(is_new);
+  const sortColumn = parseSortBy(sort_by);
+  const sortDirection = parseOrder(order);
+
+  if (activeFilter !== undefined) {
+    queryValues.push(activeFilter);
+    whereClauses.push(`products.active = $${queryValues.length}`);
+  }
+
+  if (newFilter !== undefined) {
+    queryValues.push(newFilter);
+    whereClauses.push(`products.is_new = $${queryValues.length}`);
+  }
+
+  const dbQuery = `
     SELECT
       products.product_id,
       products.slug,
@@ -49,6 +134,9 @@ export function selectAllProducts(): Promise<Product[]> {
     FROM products
     JOIN product_images
       ON products.product_id = product_images.product_id
-    ORDER BY products.product_id
-  `).then((result) => result.rows as Product[])
+    ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
+    ORDER BY ${sortColumn} ${sortDirection}
+  `;
+
+  return db.query(dbQuery, queryValues).then((result) => result.rows as Product[]);
 }

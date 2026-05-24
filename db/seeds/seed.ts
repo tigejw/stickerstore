@@ -94,15 +94,18 @@ const seed = (opts: Record<string, unknown> = {}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO products (slug, name, description, price, active, is_new) VALUES %L`,
-          products.map(({ slug, name, description, price, active, isNew }) => [
-            slug,
-            name,
-            description,
-            price,
-            active,
-            isNew,
-          ]),
+          `INSERT INTO products (slug, name, description, price, active, is_new, created_at) VALUES %L`,
+          products.map(
+            ({ slug, name, description, price, active, isNew, createdAt }) => [
+              slug,
+              name,
+              description,
+              price,
+              active,
+              isNew,
+              createdAt,
+            ],
+          ),
         ),
       );
     })
