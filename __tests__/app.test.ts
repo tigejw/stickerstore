@@ -293,3 +293,237 @@ describe("GET /api/products/:slug", () => {
       });
   });
 });
+
+describe("GET /api/bundles", () => {
+  test("200: responds with an array", () => {
+    return request(app)
+      .get("/api/bundles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body)).toBe(true);
+      });
+  });
+
+  test("200: responds with all available bundles", () => {
+    return request(app)
+      .get("/api/bundles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveLength(2);
+        expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+          "jurassic-dinosaurs",
+          "cretaceous-dinosaurs",
+        ]);
+      });
+  });
+
+  test("200: each bundle includes bundle and lifecycle fields", () => {
+    return request(app)
+      .get("/api/bundles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body[0]).toEqual(
+          expect.objectContaining({
+            bundle_id: 1,
+            slug: "jurassic-dinosaurs",
+            name: "Jurrasic Dinosaurs",
+            description: "jurrasic dinosaurs r cool.",
+            cover_image: "jurr.png",
+            active: true,
+            is_new: true,
+            created_at: expect.any(String),
+          }),
+        );
+        expect(body[1]).toEqual(
+          expect.objectContaining({
+            bundle_id: 2,
+            slug: "cretaceous-dinosaurs",
+            name: "Cretaceous Dinosaurs",
+            description: "cretaceous dinosaurs r cool",
+            cover_image: "cret.png",
+            active: true,
+            is_new: false,
+            created_at: expect.any(String),
+          }),
+        );
+      });
+  });
+
+  describe("query parameters", () => {
+    test("200: filters bundles by is_new=true", () => {
+      return request(app)
+        .get("/api/bundles?is_new=true")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveLength(1);
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "jurassic-dinosaurs",
+          ]);
+          expect(
+            body.every((bundle: { is_new: boolean }) => bundle.is_new),
+          ).toBe(true);
+        });
+    });
+
+    test("200: filters bundles by is_new=false", () => {
+      return request(app)
+        .get("/api/bundles?is_new=false")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveLength(1);
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "cretaceous-dinosaurs",
+          ]);
+          expect(
+            body.every((bundle: { is_new: boolean }) => bundle.is_new === false),
+          ).toBe(true);
+        });
+    });
+
+    test("200: filters bundles by active=true", () => {
+      return request(app)
+        .get("/api/bundles?active=true")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveLength(2);
+          expect(
+            body.every((bundle: { active: boolean }) => bundle.active),
+          ).toBe(true);
+        });
+    });
+
+    test("200: filters bundles by active=false", () => {
+      return request(app)
+        .get("/api/bundles?active=false")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual([]);
+        });
+    });
+
+    test("200: sorts bundles by created_at ascending", () => {
+      return request(app)
+        .get("/api/bundles?sort_by=created_at&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "jurassic-dinosaurs",
+            "cretaceous-dinosaurs",
+          ]);
+        });
+    });
+
+    test("200: sorts bundles by created_at descending", () => {
+      return request(app)
+        .get("/api/bundles?sort_by=created_at&order=desc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "cretaceous-dinosaurs",
+            "jurassic-dinosaurs",
+          ]);
+        });
+    });
+
+    test("200: sorts bundles by name ascending", () => {
+      return request(app)
+        .get("/api/bundles?sort_by=name&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "cretaceous-dinosaurs",
+            "jurassic-dinosaurs",
+          ]);
+        });
+    });
+
+    test("200: sorts bundles by name descending", () => {
+      return request(app)
+        .get("/api/bundles?sort_by=name&order=desc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "jurassic-dinosaurs",
+            "cretaceous-dinosaurs",
+          ]);
+        });
+    });
+  });
+});
+
+describe("GET /api/bundles/:slug", () => {
+  test("200: responds with a single bundle matching the slug", () => {
+    return request(app)
+      .get("/api/bundles/jurassic-dinosaurs")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toMatchObject({
+          bundle: {
+            bundle_id: 1,
+            slug: "jurassic-dinosaurs",
+            name: "Jurrasic Dinosaurs",
+            description: "jurrasic dinosaurs r cool.",
+            cover_image: "jurr.png",
+            active: true,
+            is_new: true,
+            created_at: expect.any(String),
+            products: [
+              {
+                product_id: 2,
+                slug: "tyrannosaurus-rex",
+                name: "tyrannosaurus rex sticker",
+                price: 999,
+                active: true,
+                is_new: true,
+                image: "tyrannosaurus-rex-main.png",
+                thumbnail: "tyrannosaurus-rex-thumb.png",
+                alt_text: "tyrannosaurus rex sticker roaring",
+              },
+              {
+                product_id: 4,
+                slug: "velociraptor",
+                name: "velociraptor sticker",
+                price: 849,
+                active: true,
+                is_new: false,
+                image: "velociraptor-main.png",
+                thumbnail: "velociraptor-thumb.png",
+                alt_text: "velociraptor sticker running",
+              },
+              {
+                product_id: 11,
+                slug: "allosaurus",
+                name: "allosaurus sticker",
+                price: 919,
+                active: true,
+                is_new: false,
+                image: "allosaurus-main.png",
+                thumbnail: "allosaurus-thumb.png",
+                alt_text: "allosaurus sticker open mouth",
+              },
+              {
+                product_id: 12,
+                slug: "carnotaurus",
+                name: "carnotaurus sticker",
+                price: 889,
+                active: true,
+                is_new: false,
+                image: "carnotaurus-main.png",
+                thumbnail: "carnotaurus-thumb.png",
+                alt_text: "carnotaurus sticker horned face",
+              },
+            ],
+          },
+        });
+      });
+  });
+
+  test("404: responds with not found when the slug does not exist", () => {
+    return request(app)
+      .get("/api/bundles/not-a-real-slug")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Not found!");
+      });
+  });
+});

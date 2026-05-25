@@ -3,7 +3,10 @@ import {
   readEndpointsData,
   selectAllProducts,
   type ProductsQuery,
-  selectProductBySlug
+  selectProductBySlug,
+  selectAllBundles,
+  type BundlesQuery,
+  selectBundleBySlug,
 } from "./model";
 
 export const getEndpoints = (
@@ -46,7 +49,36 @@ export const getProductBySlug = (
       res.status(200).send({ product: product });
     })
     .catch((err) => {
-      console.log(err, "slug")
+      next(err);
+    });
+};
+
+export const getBundles = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { sort_by, order, active, is_new } = req.query as BundlesQuery;
+  selectAllBundles({ sort_by, order, active, is_new })
+    .then((bundlesData) => {
+      res.status(200).send(bundlesData);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+export const getBundleBySlug = (
+  req: Request<{ slug: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { slug } = req.params;
+  selectBundleBySlug(slug)
+    .then((bundle) => {
+      res.status(200).send({ bundle });
+    })
+    .catch((err) => {
       next(err);
     });
 };

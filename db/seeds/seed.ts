@@ -54,7 +54,10 @@ const seed = (opts: Record<string, unknown> = {}) => {
           name VARCHAR NOT NULL,
           slug VARCHAR NOT NULL UNIQUE,
           description VARCHAR NOT NULL,
-          cover_image VARCHAR NOT NULL
+          cover_image VARCHAR NOT NULL,
+          active BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT NOW(),
+          is_new BOOLEAN DEFAULT TRUE
         );`,
       );
     })
@@ -125,12 +128,15 @@ const seed = (opts: Record<string, unknown> = {}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO bundles (name, slug, description, cover_image) VALUES %L`,
-          bundles.map(({ name, slug, description, cover_image }) => [
+          `INSERT INTO bundles (name, slug, description, cover_image, active, is_new, created_at) VALUES %L`,
+          bundles.map(({ name, slug, description, cover_image, active, isNew, createdAt }) => [
             name,
             slug,
             description,
             cover_image,
+            active,
+            isNew,
+            createdAt,
           ]),
         ),
       );

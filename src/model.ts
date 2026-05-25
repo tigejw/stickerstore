@@ -16,6 +16,13 @@ export interface ProductsQuery {
   is_new?: string;
 }
 
+export interface BundlesQuery {
+  sort_by?: "created_at" | "name";
+  order?: "asc" | "desc";
+  active?: string;
+  is_new?: string;
+}
+
 interface Product {
   product_id: number;
   slug: string;
@@ -31,6 +38,21 @@ interface Product {
   alt_text: string;
 }
 
+interface Bundle {
+  bundle_id: number;
+  slug: string;
+  name: string;
+  description: string;
+  cover_image: string;
+  active: boolean;
+  created_at: Date;
+  is_new: boolean;
+}
+
+interface BundleWithProducts extends Bundle {
+  products: Product[];
+}
+
 const allowedSortColumns: Record<
   NonNullable<ProductsQuery["sort_by"]>,
   string
@@ -42,6 +64,22 @@ const allowedSortColumns: Record<
 
 const allowedOrderDirections: Record<
   NonNullable<ProductsQuery["order"]>,
+  string
+> = {
+  asc: "ASC",
+  desc: "DESC",
+};
+
+const allowedBundleSortColumns: Record<
+  NonNullable<BundlesQuery["sort_by"]>,
+  string
+> = {
+  created_at: "bundles.created_at",
+  name: "bundles.name",
+};
+
+const allowedBundleOrderDirections: Record<
+  NonNullable<BundlesQuery["order"]>,
   string
 > = {
   asc: "ASC",
@@ -84,6 +122,34 @@ const parseOrder = (order: ProductsQuery["order"]) => {
   }
 
   const orderDirection = allowedOrderDirections[order];
+
+  if (!orderDirection) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return orderDirection;
+};
+
+const parseBundleSortBy = (sortBy: BundlesQuery["sort_by"]) => {
+  if (sortBy === undefined) {
+    return "bundles.bundle_id";
+  }
+
+  const sortColumn = allowedBundleSortColumns[sortBy];
+
+  if (!sortColumn) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return sortColumn;
+};
+
+const parseBundleOrder = (order: BundlesQuery["order"]) => {
+  if (order === undefined) {
+    return "ASC";
+  }
+
+  const orderDirection = allowedBundleOrderDirections[order];
 
   if (!orderDirection) {
     throw { status: 400, msg: "Invalid query!" };
@@ -179,6 +245,122 @@ export function selectProductBySlug(slug: string) {
           return Promise.reject({ status: 404, msg: "Not found!" });
         }
         return rows[0];
+      });
+  });
+}
+
+export function selectAllBundles({
+  sort_by,
+  order,
+  active,
+  is_new,
+}: BundlesQuery): Promise<Bundle[]> {
+  const queryValues: Array<boolean> = [];
+  const whereClauses: string[] = [];
+  const activeFilter = parseBooleanQuery(active);
+  const newFilter = parseBooleanQuery(is_new);
+  const sortColumn = parseBundleSortBy(sort_by);
+  const sortDirection = parseBundleOrder(order);
+
+  if (activeFilter !== undefined) {
+    queryValues.push(activeFilter);
+    whereClauses.push(`bundles.active = $${queryValues.length}`);
+  }
+
+  if (newFilter !== undefined) {
+    queryValues.push(newFilter);
+    whereClauses.push(`bundles.is_new = $${queryValues.length}`);
+  }
+
+  const dbQuery = `
+    SELECT
+      bundles.bundle_id,
+      bundles.slug,
+      bundles.name,
+      bundles.description,
+      bundles.cover_image,
+      bundles.active,
+      bundles.created_at,
+      bundles.is_new
+    FROM bundles
+    ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
+    ORDER BY ${sortColumn} ${sortDirection}
+  `;
+
+  return db
+    .query(dbQuery, queryValues)
+    .then((result) => result.rows as Bundle[]);
+}
+
+export function selectBundleBySlug(slug: string) {
+  return checkExists("bundles", "slug", slug).then(() => {
+    return db
+      .query(
+        `
+      SELECT
+        bundles.bundle_id,
+        bundles.slug AS bundle_slug,
+        bundles.name AS bundle_name,
+        bundles.description AS bundle_description,
+        bundles.cover_image,
+        bundles.active AS bundle_active,
+        bundles.created_at AS bundle_created_at,
+        bundles.is_new AS bundle_is_new,
+        products.product_id,
+        products.slug AS product_slug,
+        products.name AS product_name,
+        products.description AS product_description,
+        products.price,
+        products.active AS product_active,
+        products.created_at AS product_created_at,
+        products.size,
+        products.is_new AS product_is_new,
+        product_images.image,
+        product_images.thumbnail,
+        product_images.alt_text
+      FROM bundles
+      JOIN bundle_products
+        ON bundles.bundle_id = bundle_products.bundle_id
+      JOIN products
+        ON bundle_products.product_id = products.product_id
+      JOIN product_images
+        ON products.product_id = product_images.product_id
+      WHERE bundles.slug = $1
+      ORDER BY products.product_id
+        `,
+        [slug],
+      )
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          return Promise.reject({ status: 404, msg: "Not found!" });
+        }
+
+        const bundle = {
+          bundle_id: rows[0].bundle_id,
+          slug: rows[0].bundle_slug,
+          name: rows[0].bundle_name,
+          description: rows[0].bundle_description,
+          cover_image: rows[0].cover_image,
+          active: rows[0].bundle_active,
+          created_at: rows[0].bundle_created_at,
+          is_new: rows[0].bundle_is_new,
+          products: rows.map((row) => ({
+            product_id: row.product_id,
+            slug: row.product_slug,
+            name: row.product_name,
+            description: row.product_description,
+            price: row.price,
+            active: row.product_active,
+            created_at: row.product_created_at,
+            size: row.size,
+            is_new: row.product_is_new,
+            image: row.image,
+            thumbnail: row.thumbnail,
+            alt_text: row.alt_text,
+          })),
+        };
+
+        return bundle as BundleWithProducts;
       });
   });
 }
