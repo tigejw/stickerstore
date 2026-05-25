@@ -81,6 +81,7 @@ describe("GET /api/products", () => {
           }),
         );
         expect(body[12]).toEqual(
+
           expect.objectContaining({
             product_id: 13,
             slug: "pachycephalosaurus",
@@ -265,3 +266,47 @@ describe("GET /api/products", () => {
     });
   });
 });
+
+    describe("GET /api/products/:slug", () => {
+      test("200: responds with a single product matching the slug", () => {
+        return request(app)
+          .get("/api/products/spinosaurus")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toEqual(
+              expect.objectContaining({
+                product_id: 1,
+                slug: "spinosaurus",
+                name: "spinosaurus sticker",
+                description: "a sticker of a spinosaurus",
+                price: 899,
+                active: true,
+                size: null,
+                is_new: true,
+                created_at: expect.any(String),
+                image: "spinosaurus-main.png",
+                thumbnail: "spinosaurus-thumb.png",
+                alt_text: "spinosaurus sticker front view",
+              }),
+            );
+          });
+      });
+
+      test("404: responds with not found when the slug does not exist", () => {
+        return request(app)
+          .get("/api/products/not-a-real-slug")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Not found!");
+          });
+      });
+
+      test("400: responds with bad request when the slug is the wrong data type", () => {
+        return request(app)
+          .get("/api/products/123")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid slug!");
+          });
+      });
+    });
