@@ -329,6 +329,7 @@ describe("GET /api/bundles", () => {
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
             cover_image: "jurr.png",
+                price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
@@ -341,6 +342,7 @@ describe("GET /api/bundles", () => {
             name: "Cretaceous Dinosaurs",
             description: "cretaceous dinosaurs r cool",
             cover_image: "cret.png",
+                price: 3099,
             active: true,
             is_new: false,
             created_at: expect.any(String),
@@ -464,6 +466,7 @@ describe("GET /api/bundles/:slug", () => {
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
             cover_image: "jurr.png",
+            price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
@@ -524,6 +527,93 @@ describe("GET /api/bundles/:slug", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.error).toBe("Not found!");
+      });
+  });
+});
+
+describe("POST /api/create-webhook-session", () => {
+  test("200: responds with checkout items enriched with db data", () => {
+    return request(app)
+      .post("/api/create-webhook-session")
+      .send({
+        items: [
+          {
+            type: "product",
+            id: "1",
+            quantity: 2,
+          },
+          {
+            type: "bundle",
+            id: "1",
+            quantity: 1,
+          },
+        ],
+      })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            items: expect.any(Array),
+          }),
+        );
+
+        expect(body.items).toHaveLength(2);
+
+        const productItem = body.items.find(
+          (item: { type: string }) => item.type === "product",
+        );
+        const bundleItem = body.items.find(
+          (item: { type: string }) => item.type === "bundle",
+        );
+
+        expect(productItem).toEqual(
+          expect.objectContaining({
+            type: "product",
+            quantity: 2,
+            product: expect.objectContaining({
+              product_id: 1,
+              slug: "spinosaurus",
+              price: 899,
+              image: "spinosaurus-main.png",
+              thumbnail: "spinosaurus-thumb.png",
+              alt_text: "spinosaurus sticker front view",
+            }),
+          }),
+        );
+
+        expect(bundleItem).toEqual(
+          expect.objectContaining({
+            type: "bundle",
+            quantity: 1,
+            bundle: expect.objectContaining({
+              bundle_id: 1,
+              slug: "jurassic-dinosaurs",
+              price: 3299,
+              products: expect.arrayContaining([
+                expect.objectContaining({
+                  product_id: 2,
+                  slug: "tyrannosaurus-rex",
+                  price: 999,
+                }),
+                expect.objectContaining({
+                  product_id: 4,
+                  slug: "velociraptor",
+                  price: 849,
+                }),
+              ]),
+            }),
+          }),
+        );
+      });
+  });
+
+  test("400: rejects requests that do not include an items array", () => {
+    return request(app)
+      .post("/api/create-webhook-session")
+      .send({ checkout: [] })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.error).toBe("Invalid request!");
       });
   });
 });

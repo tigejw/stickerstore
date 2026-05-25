@@ -7,6 +7,8 @@ import {
   selectAllBundles,
   type BundlesQuery,
   selectBundleBySlug,
+  selectCheckoutItems,
+  type CheckoutItemInput,
 } from "./model";
 
 export const getEndpoints = (
@@ -77,6 +79,47 @@ export const getBundleBySlug = (
   selectBundleBySlug(slug)
     .then((bundle) => {
       res.status(200).send({ bundle });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+export const createWebhookSession = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { items } = req.body as { items?: CheckoutItemInput[] };
+
+  if (!Array.isArray(items) || items.length === 0) {
+    next({ status: 400, msg: "Invalid request!" });
+    return;
+  }
+
+  const hasInvalidItem = items.some((item) => {
+    if (!item) {
+      return true;
+    }
+
+    const quantityIsValid = Number.isInteger(item.quantity) && item.quantity > 0;
+    const idIsValid = typeof item.id === "string" && /^\d+$/.test(item.id);
+
+    return (
+      !quantityIsValid ||
+      !idIsValid ||
+      (item.type !== "product" && item.type !== "bundle")
+    );
+  });
+
+  if (hasInvalidItem) {
+    next({ status: 400, msg: "Invalid request!" });
+    return;
+  }
+
+  selectCheckoutItems(items)
+    .then((checkoutItems) => {
+      res.status(200).send({ items: checkoutItems });
     })
     .catch((err) => {
       next(err);
