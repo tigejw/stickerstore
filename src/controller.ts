@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import Stripe from "stripe";
 import {
   readEndpointsData,
   selectAllProducts,
@@ -10,6 +11,20 @@ import {
   selectCheckoutItems,
   type CheckoutItemInput,
 } from "./model";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+type LineItem = {
+  price_data: {
+    currency: "eur";
+    product_data: {
+      name: string;
+      images: string[];
+    };
+    unit_amount: number;
+  };
+  quantity: number;
+};
 
 export const getEndpoints = (
   req: Request,
@@ -55,11 +70,7 @@ export const getProductBySlug = (
     });
 };
 
-export const getBundles = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const getBundles = (req: Request, res: Response, next: NextFunction) => {
   const { sort_by, order, active, is_new } = req.query as BundlesQuery;
   selectAllBundles({ sort_by, order, active, is_new })
     .then((bundlesData) => {
@@ -98,18 +109,16 @@ export const createWebhookSession = (
   }
 
   const hasInvalidItem = items.some((item) => {
-    if (!item) {
+    if (
+      !item ||
+      (item.type !== "product" && item.type !== "bundle") ||
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1
+    ) {
       return true;
     }
 
-    const quantityIsValid = Number.isInteger(item.quantity) && item.quantity > 0;
-    const idIsValid = typeof item.id === "string" && /^\d+$/.test(item.id);
-
-    return (
-      !quantityIsValid ||
-      !idIsValid ||
-      (item.type !== "product" && item.type !== "bundle")
-    );
+    return false;
   });
 
   if (hasInvalidItem) {
@@ -118,8 +127,47 @@ export const createWebhookSession = (
   }
 
   selectCheckoutItems(items)
-    .then((checkoutItems) => {
-      res.status(200).send({ items: checkoutItems });
+    .then(async (checkoutItems) => {
+      const line_items: LineItem[] = checkoutItems.map((item) => {
+        if (item.type === "product") {
+          return {
+            price_data: {
+              currency: "eur",
+              product_data: {
+                name: item.product.name,
+                images: [item.product.thumbnail],
+              },
+              unit_amount: item.product.price,
+            },
+            quantity: item.quantity,
+          };
+        }
+
+        return {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: item.bundle.name,
+              images: [item.bundle.cover_image],
+            },
+            unit_amount: item.bundle.price,
+          },
+          quantity: item.quantity,
+        };
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items,
+        success_url: "http://localhost:5173/success",
+        cancel_url: "http://localhost:5173/cart",
+        shipping_address_collection: {
+          allowed_countries: ["DE", "FR", "GB"],
+        },
+        customer_creation: "always",
+      });
+
+      res.status(200).send({ items: checkoutItems, line_items, session });
     })
     .catch((err) => {
       next(err);

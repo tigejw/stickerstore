@@ -329,7 +329,7 @@ describe("GET /api/bundles", () => {
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
             cover_image: "jurr.png",
-                price: 3299,
+            price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
@@ -342,7 +342,7 @@ describe("GET /api/bundles", () => {
             name: "Cretaceous Dinosaurs",
             description: "cretaceous dinosaurs r cool",
             cover_image: "cret.png",
-                price: 3099,
+            price: 3099,
             active: true,
             is_new: false,
             created_at: expect.any(String),
@@ -377,7 +377,9 @@ describe("GET /api/bundles", () => {
             "cretaceous-dinosaurs",
           ]);
           expect(
-            body.every((bundle: { is_new: boolean }) => bundle.is_new === false),
+            body.every(
+              (bundle: { is_new: boolean }) => bundle.is_new === false,
+            ),
           ).toBe(true);
         });
     });
@@ -532,7 +534,7 @@ describe("GET /api/bundles/:slug", () => {
 });
 
 describe("POST /api/create-webhook-session", () => {
-  test("200: responds with checkout items enriched with db data", () => {
+  test("200: responds with checkout items and line items", () => {
     return request(app)
       .post("/api/create-webhook-session")
       .send({
@@ -554,56 +556,34 @@ describe("POST /api/create-webhook-session", () => {
         expect(body).toEqual(
           expect.objectContaining({
             items: expect.any(Array),
+            line_items: expect.any(Array),
           }),
         );
 
-        expect(body.items).toHaveLength(2);
-
-        const productItem = body.items.find(
-          (item: { type: string }) => item.type === "product",
-        );
-        const bundleItem = body.items.find(
-          (item: { type: string }) => item.type === "bundle",
-        );
-
-        expect(productItem).toEqual(
-          expect.objectContaining({
-            type: "product",
-            quantity: 2,
-            product: expect.objectContaining({
-              product_id: 1,
-              slug: "spinosaurus",
-              price: 899,
-              image: "spinosaurus-main.png",
-              thumbnail: "spinosaurus-thumb.png",
-              alt_text: "spinosaurus sticker front view",
-            }),
-          }),
-        );
-
-        expect(bundleItem).toEqual(
-          expect.objectContaining({
-            type: "bundle",
-            quantity: 1,
-            bundle: expect.objectContaining({
-              bundle_id: 1,
-              slug: "jurassic-dinosaurs",
-              price: 3299,
-              products: expect.arrayContaining([
-                expect.objectContaining({
-                  product_id: 2,
-                  slug: "tyrannosaurus-rex",
-                  price: 999,
-                }),
-                expect.objectContaining({
-                  product_id: 4,
-                  slug: "velociraptor",
-                  price: 849,
-                }),
-              ]),
-            }),
-          }),
-        );
+        expect(body.line_items).toEqual([
+          {
+            price_data: {
+              currency: "eur",
+              product_data: {
+                image: "spinosaurus-thumb.png",
+                name: "spinosaurus sticker",
+              },
+              unit_amount: 899,
+            },
+            quantity: 2
+          },
+          {
+            price_data: {
+              currency: "eur",
+              product_data: {
+                image: "jurr.png",
+                name: "Jurrasic Dinosaurs",
+              },
+              unit_amount: 3299,
+            },
+            quantity: 1
+          },
+        ]);
       });
   });
 

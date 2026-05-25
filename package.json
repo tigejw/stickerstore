@@ -8,7 +8,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.20.0",
-    "pg-format": "^1.0.4"
+    "pg-format": "^1.0.4",
+    "stripe": "^22.1.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -37,8 +38,19 @@
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     },
-    "testMatch": ["**/__tests__/**/*.test.(ts|tsx|js)", "**/__tests__/**/*.ts", "**/__tests__/**/*.tsx"],
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "testMatch": [
+      "**/__tests__/**/*.test.(ts|tsx|js)",
+      "**/__tests__/**/*.ts",
+      "**/__tests__/**/*.tsx"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "repository": {
     "type": "git",
