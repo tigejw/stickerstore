@@ -1,5 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { readEndpointsData, selectAllProducts, type ProductsQuery } from "./model";
+import {
+  readEndpointsData,
+  selectAllProducts,
+  type ProductsQuery,
+  selectProductBySlug
+} from "./model";
 
 export const getEndpoints = (
   req: Request,
@@ -26,6 +31,22 @@ export const getProducts = (
       res.status(200).send(productsData);
     })
     .catch((err) => {
+      next(err);
+    });
+};
+
+export const getProductBySlug = (
+  req: Request<{ slug: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { slug } = req.params;
+  selectProductBySlug(slug)
+    .then((product) => {
+      res.status(200).send({ product: product });
+    })
+    .catch((err) => {
+      console.log(err, "slug")
       next(err);
     });
 };

@@ -5,4 +5,5 @@ import { productRouter } from "./productRoutes"
 
 apiRouter.get("/", getEndpoints)
 apiRouter.use("/products", productRouter)
+
 export default apiRouter

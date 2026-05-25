@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import db from "../db/connection";
-
+import { checkExists } from "./utils/utils";
 export interface EndpointDocumentation {
   description: string;
   queries: string[];
@@ -31,13 +31,19 @@ interface Product {
   alt_text: string;
 }
 
-const allowedSortColumns: Record<NonNullable<ProductsQuery["sort_by"]>, string> = {
+const allowedSortColumns: Record<
+  NonNullable<ProductsQuery["sort_by"]>,
+  string
+> = {
   price: "products.price",
   created_at: "products.created_at",
   name: "products.name",
 };
 
-const allowedOrderDirections: Record<NonNullable<ProductsQuery["order"]>, string> = {
+const allowedOrderDirections: Record<
+  NonNullable<ProductsQuery["order"]>,
+  string
+> = {
   asc: "ASC",
   desc: "DESC",
 };
@@ -138,5 +144,41 @@ export function selectAllProducts({
     ORDER BY ${sortColumn} ${sortDirection}
   `;
 
-  return db.query(dbQuery, queryValues).then((result) => result.rows as Product[]);
+  return db
+    .query(dbQuery, queryValues)
+    .then((result) => result.rows as Product[]);
+}
+
+export function selectProductBySlug(slug: string) {
+  return checkExists("products", "slug", slug).then(() => {
+    return db
+      .query(
+        `
+      SELECT
+        products.product_id,
+        products.slug,
+        products.name,
+        products.description,
+        products.price,
+        products.active,
+        products.created_at,
+        products.size,
+        products.is_new,
+        product_images.image,
+        product_images.thumbnail,
+        product_images.alt_text
+      FROM products
+      JOIN product_images
+        ON products.product_id = product_images.product_id
+      WHERE products.slug = $1
+        `,
+        [slug],
+      )
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          return Promise.reject({ status: 404, msg: "Not found!" });
+        }
+        return rows[0];
+      });
+  });
 }

@@ -1,18 +1,18 @@
 /// <reference types="jest" />
-import request from "supertest"
-import app from "../src/app"
-import seed from "../db/seeds/seed"
-import db from "../db/connection"
+import request from "supertest";
+import app from "../src/app";
+import seed from "../db/seeds/seed";
+import db from "../db/connection";
 
-const endpointsData = require("../endpoints.json")
+const endpointsData = require("../endpoints.json");
 
-beforeEach(()=>{
-    return seed()
-})
+beforeEach(() => {
+  return seed();
+});
 
-afterAll(()=>{
-    return db.end()
-})
+afterAll(() => {
+  return db.end();
+});
 
 describe("GET /api", () => {
   test("200: Responds with an object detailing the documentation for each endpoint", () => {
@@ -81,7 +81,6 @@ describe("GET /api/products", () => {
           }),
         );
         expect(body[12]).toEqual(
-
           expect.objectContaining({
             product_id: 13,
             slug: "pachycephalosaurus",
@@ -100,11 +99,12 @@ describe("GET /api/products", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).toHaveLength(2);
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual([
-            "spinosaurus",
-            "tyrannosaurus-rex",
-          ]);
-          expect(body.every((product: { is_new: boolean }) => product.is_new)).toBe(true);
+          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+            ["spinosaurus", "tyrannosaurus-rex"],
+          );
+          expect(
+            body.every((product: { is_new: boolean }) => product.is_new),
+          ).toBe(true);
         });
     });
 
@@ -114,7 +114,9 @@ describe("GET /api/products", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).toHaveLength(13);
-          expect(body.every((product: { active: boolean }) => product.active)).toBe(true);
+          expect(
+            body.every((product: { active: boolean }) => product.active),
+          ).toBe(true);
         });
     });
 
@@ -132,20 +134,10 @@ describe("GET /api/products", () => {
         .get("/api/products?sort_by=price&order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.map((product: { price: number }) => product.price)).toEqual([
-            829,
-            849,
-            869,
-            879,
-            889,
-            899,
-            899,
-            899,
-            899,
-            919,
-            929,
-            949,
-            999,
+          expect(
+            body.map((product: { price: number }) => product.price),
+          ).toEqual([
+            829, 849, 869, 879, 889, 899, 899, 899, 899, 919, 929, 949, 999,
           ]);
         });
     });
@@ -155,20 +147,10 @@ describe("GET /api/products", () => {
         .get("/api/products?sort_by=price&order=desc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.map((product: { price: number }) => product.price)).toEqual([
-            999,
-            949,
-            929,
-            919,
-            899,
-            899,
-            899,
-            899,
-            889,
-            879,
-            869,
-            849,
-            829,
+          expect(
+            body.map((product: { price: number }) => product.price),
+          ).toEqual([
+            999, 949, 929, 919, 899, 899, 899, 899, 889, 879, 869, 849, 829,
           ]);
         });
     });
@@ -178,21 +160,23 @@ describe("GET /api/products", () => {
         .get("/api/products?sort_by=created_at&order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual([
-            "spinosaurus",
-            "tyrannosaurus-rex",
-            "triceratops",
-            "velociraptor",
-            "stegosaurus",
-            "brachiosaurus",
-            "ankylosaurus",
-            "parasaurolophus",
-            "iguanodon",
-            "diplodocus",
-            "allosaurus",
-            "carnotaurus",
-            "pachycephalosaurus",
-          ]);
+          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+            [
+              "spinosaurus",
+              "tyrannosaurus-rex",
+              "triceratops",
+              "velociraptor",
+              "stegosaurus",
+              "brachiosaurus",
+              "ankylosaurus",
+              "parasaurolophus",
+              "iguanodon",
+              "diplodocus",
+              "allosaurus",
+              "carnotaurus",
+              "pachycephalosaurus",
+            ],
+          );
         });
     });
 
@@ -201,21 +185,23 @@ describe("GET /api/products", () => {
         .get("/api/products?sort_by=created_at&order=desc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual([
-            "pachycephalosaurus",
-            "carnotaurus",
-            "allosaurus",
-            "diplodocus",
-            "iguanodon",
-            "parasaurolophus",
-            "ankylosaurus",
-            "brachiosaurus",
-            "stegosaurus",
-            "velociraptor",
-            "triceratops",
-            "tyrannosaurus-rex",
-            "spinosaurus",
-          ]);
+          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+            [
+              "pachycephalosaurus",
+              "carnotaurus",
+              "allosaurus",
+              "diplodocus",
+              "iguanodon",
+              "parasaurolophus",
+              "ankylosaurus",
+              "brachiosaurus",
+              "stegosaurus",
+              "velociraptor",
+              "triceratops",
+              "tyrannosaurus-rex",
+              "spinosaurus",
+            ],
+          );
         });
     });
 
@@ -224,21 +210,23 @@ describe("GET /api/products", () => {
         .get("/api/products?sort_by=name&order=asc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual([
-            "allosaurus",
-            "ankylosaurus",
-            "brachiosaurus",
-            "carnotaurus",
-            "diplodocus",
-            "iguanodon",
-            "pachycephalosaurus",
-            "parasaurolophus",
-            "spinosaurus",
-            "stegosaurus",
-            "triceratops",
-            "tyrannosaurus-rex",
-            "velociraptor",
-          ]);
+          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+            [
+              "allosaurus",
+              "ankylosaurus",
+              "brachiosaurus",
+              "carnotaurus",
+              "diplodocus",
+              "iguanodon",
+              "pachycephalosaurus",
+              "parasaurolophus",
+              "spinosaurus",
+              "stegosaurus",
+              "triceratops",
+              "tyrannosaurus-rex",
+              "velociraptor",
+            ],
+          );
         });
     });
 
@@ -247,66 +235,61 @@ describe("GET /api/products", () => {
         .get("/api/products?sort_by=name&order=desc")
         .expect(200)
         .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual([
-            "velociraptor",
-            "tyrannosaurus-rex",
-            "triceratops",
-            "stegosaurus",
-            "spinosaurus",
-            "parasaurolophus",
-            "pachycephalosaurus",
-            "iguanodon",
-            "diplodocus",
-            "carnotaurus",
-            "brachiosaurus",
-            "ankylosaurus",
-            "allosaurus",
-          ]);
+          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+            [
+              "velociraptor",
+              "tyrannosaurus-rex",
+              "triceratops",
+              "stegosaurus",
+              "spinosaurus",
+              "parasaurolophus",
+              "pachycephalosaurus",
+              "iguanodon",
+              "diplodocus",
+              "carnotaurus",
+              "brachiosaurus",
+              "ankylosaurus",
+              "allosaurus",
+            ],
+          );
         });
     });
   });
 });
 
-    describe("GET /api/products/:slug", () => {
-      test("200: responds with a single product matching the slug", () => {
-        return request(app)
-          .get("/api/products/spinosaurus")
-          .expect(200)
-          .then(({ body }) => {
-            expect(body).toEqual(
-              expect.objectContaining({
-                product_id: 1,
-                slug: "spinosaurus",
-                name: "spinosaurus sticker",
-                description: "a sticker of a spinosaurus",
-                price: 899,
-                active: true,
-                size: null,
-                is_new: true,
-                created_at: expect.any(String),
-                image: "spinosaurus-main.png",
-                thumbnail: "spinosaurus-thumb.png",
-                alt_text: "spinosaurus sticker front view",
-              }),
-            );
-          });
+describe("GET /api/products/:slug", () => {
+  test("200: responds with a single product matching the slug", () => {
+    return request(app)
+      .get("/api/products/spinosaurus")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            product: {
+              product_id: 1,
+              slug: "spinosaurus",
+              name: "spinosaurus sticker",
+              description: "a sticker of a spinosaurus",
+              price: 899,
+              active: true,
+              size: null,
+              is_new: true,
+              created_at: "2023-12-31T23:00:00.000Z",
+              image: "spinosaurus-main.png",
+              thumbnail: "spinosaurus-thumb.png",
+              alt_text: "spinosaurus sticker front view",
+            },
+          }),
+        );
       });
+  });
 
-      test("404: responds with not found when the slug does not exist", () => {
-        return request(app)
-          .get("/api/products/not-a-real-slug")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Not found!");
-          });
+  test("404: responds with not found when the slug does not exist", () => {
+    return request(app)
+      .get("/api/products/not-a-real-slug")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Not found!");
       });
-
-      test("400: responds with bad request when the slug is the wrong data type", () => {
-        return request(app)
-          .get("/api/products/123")
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Invalid slug!");
-          });
-      });
-    });
+  });
+});

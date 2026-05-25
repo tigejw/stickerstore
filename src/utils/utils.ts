@@ -1,5 +1,5 @@
 import format from "pg-format";
-import db from "./connection";
+import db from "../../db/connection";
 
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
