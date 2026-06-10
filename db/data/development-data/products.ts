@@ -5,6 +5,7 @@ type ProductSeed = {
   price: number;
   active: boolean;
   isNew: boolean;
+  createdAt: string;
 };
 
 const products: ProductSeed[] = [
@@ -15,6 +16,7 @@ const products: ProductSeed[] = [
     price: 899,
     active: true,
     isNew: true,
+    createdAt: "2024-01-01T00:00:00.000Z",
   },
   {
     slug: "tyrannosaurus-rex",
@@ -23,6 +25,7 @@ const products: ProductSeed[] = [
     price: 999,
     active: true,
     isNew: true,
+    createdAt: "2024-01-02T00:00:00.000Z",
   },
   {
     slug: "triceratops",
@@ -31,6 +34,7 @@ const products: ProductSeed[] = [
     price: 899,
     active: true,
     isNew: false,
+    createdAt: "2024-01-03T00:00:00.000Z",
   },
   {
     slug: "velociraptor",
@@ -39,6 +43,7 @@ const products: ProductSeed[] = [
     price: 849,
     active: true,
     isNew: false,
+    createdAt: "2024-01-04T00:00:00.000Z",
   },
   {
     slug: "stegosaurus",
@@ -47,6 +52,7 @@ const products: ProductSeed[] = [
     price: 899,
     active: true,
     isNew: false,
+    createdAt: "2024-01-05T00:00:00.000Z",
   },
   {
     slug: "brachiosaurus",
@@ -55,6 +61,7 @@ const products: ProductSeed[] = [
     price: 949,
     active: true,
     isNew: false,
+    createdAt: "2024-01-06T00:00:00.000Z",
   },
   {
     slug: "ankylosaurus",
@@ -63,6 +70,7 @@ const products: ProductSeed[] = [
     price: 879,
     active: true,
     isNew: false,
+    createdAt: "2024-01-07T00:00:00.000Z",
   },
   {
     slug: "parasaurolophus",
@@ -71,6 +79,7 @@ const products: ProductSeed[] = [
     price: 899,
     active: true,
     isNew: false,
+    createdAt: "2024-01-08T00:00:00.000Z",
   },
   {
     slug: "iguanodon",
@@ -79,6 +88,7 @@ const products: ProductSeed[] = [
     price: 829,
     active: true,
     isNew: false,
+    createdAt: "2024-01-09T00:00:00.000Z",
   },
   {
     slug: "diplodocus",
@@ -87,6 +97,7 @@ const products: ProductSeed[] = [
     price: 929,
     active: true,
     isNew: false,
+    createdAt: "2024-01-10T00:00:00.000Z",
   },
   {
     slug: "allosaurus",
@@ -95,6 +106,7 @@ const products: ProductSeed[] = [
     price: 919,
     active: true,
     isNew: false,
+    createdAt: "2024-01-11T00:00:00.000Z",
   },
   {
     slug: "carnotaurus",
@@ -103,6 +115,7 @@ const products: ProductSeed[] = [
     price: 889,
     active: true,
     isNew: false,
+    createdAt: "2024-01-12T00:00:00.000Z",
   },
   {
     slug: "pachycephalosaurus",
@@ -111,6 +124,7 @@ const products: ProductSeed[] = [
     price: 869,
     active: true,
     isNew: false,
+    createdAt: "2024-01-13T00:00:00.000Z",
   },
 ];
 

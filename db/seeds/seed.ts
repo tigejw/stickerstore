@@ -1,7 +1,7 @@
 import format from "pg-format";
 import db from "../connection";
 import devData from "../data/development-data/index";
-const seed = ({}) => {
+const seed = (opts: Record<string, unknown> = {}) => {
   const { products, productImages, bundles, bundleProducts } = devData;
 
   return db
@@ -54,7 +54,11 @@ const seed = ({}) => {
           name VARCHAR NOT NULL,
           slug VARCHAR NOT NULL UNIQUE,
           description VARCHAR NOT NULL,
-          cover_image VARCHAR NOT NULL
+          cover_image VARCHAR NOT NULL,
+          price INT NOT NULL,
+          active BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT NOW(),
+          is_new BOOLEAN DEFAULT TRUE
         );`,
       );
     })
@@ -94,15 +98,18 @@ const seed = ({}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO products (slug, name, description, price, active, is_new) VALUES %L`,
-          products.map(({ slug, name, description, price, active, isNew }) => [
-            slug,
-            name,
-            description,
-            price,
-            active,
-            isNew,
-          ]),
+          `INSERT INTO products (slug, name, description, price, active, is_new, created_at) VALUES %L`,
+          products.map(
+            ({ slug, name, description, price, active, isNew, createdAt }) => [
+              slug,
+              name,
+              description,
+              price,
+              active,
+              isNew,
+              createdAt,
+            ],
+          ),
         ),
       );
     })
@@ -122,12 +129,16 @@ const seed = ({}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO bundles (name, slug, description, cover_image) VALUES %L`,
-          bundles.map(({ name, slug, description, cover_image }) => [
+          `INSERT INTO bundles (name, slug, description, cover_image, price, active, is_new, created_at) VALUES %L`,
+          bundles.map(({ name, slug, description, cover_image, price, active, isNew, createdAt }) => [
             name,
             slug,
             description,
             cover_image,
+            price,
+            active,
+            isNew,
+            createdAt,
           ]),
         ),
       );
