@@ -13,5 +13,141 @@
         }
       }
     }
+  },
+  "GET /api/products": {
+    "description": "serves up an array of all products",
+    "queries": ["sort_by", "order", "active", "is_new"],
+    "exampleResponse": [
+      {
+        "product_id": 1,
+        "slug": "spinosaurus",
+        "name": "spinosaurus sticker",
+        "description": "a sticker of a spinosaurus",
+        "price": 899,
+        "active": true,
+        "size": null,
+        "is_new": true,
+        "created_at": "2023-12-31T23:00:00.000Z",
+        "image": "spinosaurus-main.png",
+        "thumbnail": "spinosaurus-thumb.png",
+        "alt_text": "spinosaurus sticker front view"
+      }
+    ]
+  },
+  "GET /api/products/:slug": {
+    "description": "serves up a single product matching the provided slug",
+    "queries": [],
+    "exampleResponse": {
+      "product": {
+        "product_id": 1,
+        "slug": "spinosaurus",
+        "name": "spinosaurus sticker",
+        "description": "a sticker of a spinosaurus",
+        "price": 899,
+        "active": true,
+        "size": null,
+        "is_new": true,
+        "created_at": "2023-12-31T23:00:00.000Z",
+        "image": "spinosaurus-main.png",
+        "thumbnail": "spinosaurus-thumb.png",
+        "alt_text": "spinosaurus sticker front view"
+      }
+    }
+  },
+  "GET /api/bundles": {
+    "description": "serves up an array of all bundles",
+    "queries": ["sort_by", "order", "active", "is_new"],
+    "exampleResponse": [
+      {
+        "bundle_id": 1,
+        "slug": "jurassic-dinosaurs",
+        "name": "Jurrasic Dinosaurs",
+        "description": "jurrasic dinosaurs r cool.",
+        "cover_image": "jurr.png",
+        "price": 3299,
+        "active": true,
+        "is_new": true,
+        "created_at": "2023-12-31T23:00:00.000Z"
+      }
+    ]
+  },
+  "GET /api/bundles/:slug": {
+    "description": "serves up a single bundle matching the provided slug, including its products",
+    "queries": [],
+    "exampleResponse": {
+      "bundle": {
+        "bundle_id": 1,
+        "slug": "jurassic-dinosaurs",
+        "name": "Jurrasic Dinosaurs",
+        "description": "jurrasic dinosaurs r cool.",
+        "cover_image": "jurr.png",
+        "price": 3299,
+        "active": true,
+        "is_new": true,
+        "created_at": "2023-12-31T23:00:00.000Z",
+        "products": [
+          {
+            "product_id": 2,
+            "slug": "tyrannosaurus-rex",
+            "name": "tyrannosaurus rex sticker",
+            "price": 999,
+            "active": true,
+            "is_new": true,
+            "image": "tyrannosaurus-rex-main.png",
+            "thumbnail": "tyrannosaurus-rex-thumb.png",
+            "alt_text": "tyrannosaurus rex sticker roaring"
+          }
+        ]
+      }
+    }
+  },
+  "POST /api/create-webhook-session": {
+    "description": "creates a stripe checkout session from requested cart items",
+    "queries": [],
+    "exampleBody": {
+      "items": [
+        {
+          "type": "product",
+          "id": "1",
+          "quantity": 2
+        },
+        {
+          "type": "bundle",
+          "id": "1",
+          "quantity": 1
+        }
+      ]
+    },
+    "exampleResponse": {
+      "items": [
+        {
+          "type": "product",
+          "quantity": 2,
+          "product": {
+            "product_id": 1,
+            "slug": "spinosaurus",
+            "name": "spinosaurus sticker",
+            "price": 899,
+            "thumbnail": "spinosaurus-thumb.png"
+          }
+        }
+      ],
+      "line_items": [
+        {
+          "price_data": {
+            "currency": "eur",
+            "product_data": {
+              "image": "spinosaurus-thumb.png",
+              "name": "spinosaurus sticker"
+            },
+            "unit_amount": 899
+          },
+          "quantity": 2
+        }
+      ],
+      "session": {
+        "id": "cs_test_123"
+      }
+    }
   }
 }
