@@ -452,7 +452,6 @@ describe("GET /api/bundles", () => {
           ]);
         });
     });
-<<<<<<< HEAD
 
      test("200: sorts bundles by price asc", () => {
       return request(app)
@@ -476,8 +475,6 @@ describe("GET /api/bundles", () => {
           ]);
         });
     });
-=======
->>>>>>> 7c87b939ceb243107ba8e0770b86372745c483bc
   });
 });
 
