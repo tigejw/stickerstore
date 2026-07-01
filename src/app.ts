@@ -1,4 +1,5 @@
 import express, { Application, NextFunction, Request, Response } from "express";
+import cors from "cors"
 import apiRouter from "./routers/routes";
 
 const app: Application = express();
@@ -11,6 +12,7 @@ type PgError = {
   code?: string;
 };
 
+app.use(cors())
 app.use(express.json());
 app.use("/api", apiRouter);
 

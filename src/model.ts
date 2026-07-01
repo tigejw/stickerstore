@@ -17,7 +17,7 @@ export interface ProductsQuery {
 }
 
 export interface BundlesQuery {
-  sort_by?: "created_at" | "name";
+  sort_by?: "price" | "created_at" | "name";
   order?: "asc" | "desc";
   active?: string;
   is_new?: string;
@@ -97,6 +97,7 @@ const allowedBundleSortColumns: Record<
 > = {
   created_at: "bundles.created_at",
   name: "bundles.name",
+  price: "bundles.price"
 };
 
 const allowedBundleOrderDirections: Record<

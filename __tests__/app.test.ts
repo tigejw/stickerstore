@@ -452,6 +452,29 @@ describe("GET /api/bundles", () => {
           ]);
         });
     });
+
+     test("200: sorts bundles by price asc", () => {
+      return request(app)
+        .get("/api/bundles?sort_by=price&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "cretaceous-dinosaurs",
+            "jurassic-dinosaurs",
+          ]);
+        });
+    });
+       test("200: sorts bundles by price desc", () => {
+      return request(app)
+        .get("/api/bundles?sort_by=price&order=desc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "jurassic-dinosaurs",
+            "cretaceous-dinosaurs",
+          ]);
+        });
+    });
   });
 });
 
