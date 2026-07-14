@@ -146,7 +146,10 @@
         }
       ],
       "session": {
-        "id": "cs_test_123"
+        "id": "cs_test_123",
+        "cancel_url" : "http://localhost:5173/cart",
+        "success_url": "http://localhost:5173/success",
+        "url": "https://checkout.stripe.com/c/pay/cs_test_b1tcfgjBd4dZifFp....."
       }
     }
   }

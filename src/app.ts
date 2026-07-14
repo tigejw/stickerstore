@@ -1,6 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors"
 import apiRouter from "./routers/routes";
+import {handleStripeWebhook} from "./controller"
 
 const app: Application = express();
 
@@ -13,6 +14,15 @@ type PgError = {
 };
 
 app.use(cors())
+
+//stripe listen --forward-to localhost:9090/handle-stripe-webhook in terminal for testing
+
+app.post(
+  "/handle-stripe-webhook",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
+
 app.use(express.json());
 app.use("/api", apiRouter);
 
