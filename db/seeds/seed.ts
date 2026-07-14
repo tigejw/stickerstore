@@ -75,25 +75,34 @@ const seed = (opts: Record<string, unknown> = {}) => {
       return db.query(`CREATE TABLE orders (
         order_id SERIAL PRIMARY KEY,
         stripe_session_id TEXT NOT NULL,
+        payment_intent TEXT NOT NULL,
+        currency TEXT NOT NULL,
         customer_email TEXT NOT NULL,
         shipping_address_line1 TEXT NOT NULL,
         shipping_address_line2 TEXT,
         shipping_city TEXT NOT NULL,
         shipping_postcode TEXT NOT NULL,
         shipping_country TEXT NOT NULL,
-        total_price INT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'paid',
+        amount_total INT NOT NULL,
+        amount_subtotal INT NOT NULL,
+        payment_status TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'unknown',
         created_at TIMESTAMP DEFAULT NOW()
       );`);
     })
     .then(() => {
       return db.query(`CREATE TABLE order_products (
-        order_product_id SERIAL PRIMARY KEY,
-        order_id INT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
-        product_id INT NOT NULL REFERENCES products(product_id) ON DELETE RESTRICT,
-        quantity INT NOT NULL DEFAULT 1,
-        price_at_purchase INT NOT NULL
-      );`);
+  order_product_id SERIAL PRIMARY KEY,
+  order_id INT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+  product_id INT REFERENCES products(product_id) ON DELETE RESTRICT,
+  bundle_id INT REFERENCES bundles(bundle_id) ON DELETE RESTRICT,
+  quantity INT NOT NULL DEFAULT 1,
+  price_at_purchase INT NOT NULL,
+  CONSTRAINT exactly_one_item_type CHECK (
+    (product_id IS NOT NULL AND bundle_id IS NULL) OR
+    (product_id IS NULL AND bundle_id IS NOT NULL)
+  )
+);`);
     })
     .then(() => {
       return db.query(
