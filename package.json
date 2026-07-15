@@ -9,6 +9,7 @@
     "express": "^5.2.1",
     "pg": "^8.20.0",
     "pg-format": "^1.0.4",
+    "resend": "^6.17.2",
     "stripe": "^22.1.1"
   },
   "devDependencies": {
@@ -32,7 +33,7 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed-dbs": "PGDATABASE=sticker_store tsx ./db/seeds/run-seeds",
     "test": "NODE_ENV=test jest",
-    "print" : "psql -f psqltest.sql > results.md"
+    "print": "psql -f psqltest.sql > results.md"
   },
   "jest": {
     "preset": "ts-jest",

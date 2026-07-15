@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import db from "../db/connection";
-import { checkExists } from "./utils/utils";
+import { checkExists, notifyMe } from "./utils/utils";
 import Stripe from "stripe";
 export interface EndpointDocumentation {
   description: string;
@@ -634,6 +634,7 @@ export const fulfillOrder = async (
     }
 
     await client.query("COMMIT");
+    notifyMe(fullSession.id)
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;

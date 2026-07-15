@@ -45,10 +45,14 @@ You are now connected to database "sticker_store" as user "tjw".
          2 |          9
 (8 rows)
 
- order_id |                         stripe_session_id                          |       payment_intent        | currency | customer_email | shipping_address_line1 | shipping_address_line2 |    shipping_city     | shipping_postcode | shipping_country | amount_total | amount_subtotal | payment_status |  status  |         created_at         
-----------+--------------------------------------------------------------------+-----------------------------+----------+----------------+------------------------+------------------------+----------------------+-------------------+------------------+--------------+-----------------+----------------+----------+----------------------------
-        1 | cs_test_b1UGJzetmFGIQeqAbcPECSDfMG1zp1E4qVSDziDSQgZ0qlsvi411YsiIPt | pi_3Tt4KzA21iTqSdJw005uldev | eur      | test@gmail.com | tester                 |                        | Test Valley District | 424242            | GB               |        11225 |           11225 | paid           | complete | 2026-07-14 13:17:24.343168
-(1 row)
+ order_id |                         stripe_session_id                          |       payment_intent        | currency |      customer_email      | shipping_address_line1 | shipping_address_line2 |    shipping_city     | shipping_postcode | shipping_country | amount_total | amount_subtotal | payment_status |   status    |         created_at         
+----------+--------------------------------------------------------------------+-----------------------------+----------+--------------------------+------------------------+------------------------+----------------------+-------------------+------------------+--------------+-----------------+----------------+-------------+----------------------------
+        1 | cs_test_b1UGJzetmFGIQeqAbcPECSDfMG1zp1E4qVSDziDSQgZ0qlsvi411YsiIPt | pi_3Tt4KzA21iTqSdJw005uldev | eur      | test@gmail.com           | tester                 |                        | Test Valley District | 424242            | GB               |        11225 |           11225 | paid           | complete    | 2026-07-14 13:17:24.343168
+        2 | cs_test_a1Xn0aHgd1LM4pDA7ePt3mB18wQLA79RLrOz1sXa71OpuUJZRBCCsaz6il | pi_3TtUojA21iTqSdJw1ZWMBAxa | eur      | newtesteremail@gmail.com | Am Lustgarten          |                        | Berlin               | 10178             | DE               |         3299 |            3299 | paid           | not shipped | 2026-07-15 17:33:52.854219
+        3 | cs_test_b19Q46fK6NtHZ3O9EAV40JnIZN40ZZtyaW73abAHyVe88fGHCSJ109b8cl | pi_3TtUq5A21iTqSdJw0veqMQrT | eur      | dinosaurlover@8.com      | Trankgasse             |                        | Köln                 | 50667             | DE               |         4198 |            4198 | paid           | not shipped | 2026-07-15 17:35:16.322532
+        4 | cs_test_a1xmXGlQFN5upgkZY0fSMufNQl3joYCYu8LTuFRDnNqFSCvvhCbUMrLlXX | pi_3TtUswA21iTqSdJw1Y25vJqP | eur      | jurassicfan@gmail.com    | Trankgasse             |                        | Köln                 | 50667             | DE               |         3299 |            3299 | paid           | not shipped | 2026-07-15 17:38:12.85187
+        5 | cs_test_a1D20XWF3UqapGy614XNTaE9HNaM0jV3WDYs8IczNoxapEnz5WAZAWoz7m | pi_3TtUuYA21iTqSdJw0aHe4tuf | eur      | jurassicfan@gmail.com    | Trankgasse             |                        | Köln                 | 50667             | DE               |         3299 |            3299 | paid           | not shipped | 2026-07-15 17:39:52.989701
+(5 rows)
 
  order_product_id | order_id | product_id | bundle_id | quantity | price_at_purchase 
 ------------------+----------+------------+-----------+----------+-------------------
@@ -56,5 +60,10 @@ You are now connected to database "sticker_store" as user "tjw".
                 2 |        1 |            |         2 |        2 |              3099
                 3 |        1 |          9 |           |        1 |               829
                 4 |        1 |          5 |           |        1 |               899
-(4 rows)
+                5 |        2 |            |         1 |        1 |              3299
+                6 |        3 |            |         1 |        1 |              3299
+                7 |        3 |          1 |           |        1 |               899
+                8 |        4 |            |         1 |        1 |              3299
+                9 |        5 |            |         1 |        1 |              3299
+(9 rows)
 
