@@ -2,7 +2,7 @@
   "name": "stickerstore",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "listen.ts",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -27,12 +27,12 @@
     "typescript": "^6.0.3"
   },
   "scripts": {
-    "dev": "PGDATABASE=sticker_store nodemon --exec tsx ./src/listen.ts",
+     "dev": "PGDATABASE=sticker_store nodemon --exec tsx ./src/listen.ts",
     "start": "tsx ./src/listen.ts",
     "setup-dbs": "psql -f ./db/setup.sql",
-    "seed-dbs": "PGDATABASE=sticker_store tsx ./db/seeds/run-seeds",
+    "seed": "PGDATABASE=sticker_store tsx ./db/seeds/run-seeds",
     "test": "NODE_ENV=test jest",
-    "print" : "psql -f psqltest.sql > results.md"
+    "print": "psql -f psqltest.sql > results.md"
   },
   "jest": {
     "preset": "ts-jest",

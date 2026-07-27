@@ -1,15 +1,23 @@
 const ENV = process.env.NODE_ENV || 'development';
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config({
   path: `${__dirname}/../.env.${ENV}`,
 });
 
-if (!process.env.PGDATABASE) {
-  throw new Error("No PGDATABASE configured");
+if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
+  throw new Error("PGDATABASE or DATABASE_URL not set");
 }
 
-export default new Pool({
-  host: process.env.PGHOST || "/var/run/postgresql",
-});
+
+const config: PoolConfig = {};
+
+if (ENV === 'production') {
+  config.connectionString = process.env.DATABASE_URL;
+  config.max = 2;
+} else {
+  config.host = process.env.PGHOST || "/var/run/postgresql";
+}
+
+export default new Pool(config);
