@@ -4,6 +4,7 @@
 
 [functions]
   node_bundler = "esbuild"
+  included_files = ["node_modules/pg-format/**"]
 
 [[redirects]]
   from = "/api/*"
