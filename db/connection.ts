@@ -13,8 +13,9 @@ if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
 
 const config: PoolConfig = {};
 
-if (ENV === 'production') {
+if (process.env.DATABASE_URL) {
   config.connectionString = process.env.DATABASE_URL;
+  config.ssl = { rejectUnauthorized: false }; // Supabase requires SSL
   config.max = 2;
 } else {
   config.host = process.env.PGHOST || "/var/run/postgresql";
