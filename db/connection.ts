@@ -17,7 +17,7 @@ const config: PoolConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }, 
   max: 1,                    
-  idleTimeoutMillis: 1000,   
+  idleTimeoutMillis: 30000,   
   connectionTimeoutMillis: 5000,
 };
 
