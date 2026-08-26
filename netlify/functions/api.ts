@@ -1,9 +1,11 @@
 import serverless from "serverless-http";
 const app = require("../../src/app");
 
-export const handler = serverless(app, {
+const serverlessApp = serverless(app, {
   binary: ["application/json"],
- request: (_request: unknown, _event: unknown, context: { callbackWaitsForEmptyEventLoop: boolean }) => {
-    context.callbackWaitsForEmptyEventLoop = false;
-  }
 });
+
+export const handler = async (event: any, context: any) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+  return await serverlessApp(event, context);
+};
