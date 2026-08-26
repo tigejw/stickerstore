@@ -12,3 +12,20 @@ export const checkExists = (table: string, column: string, value: string | numbe
       return "It's alive!";
     });
 };
+
+export const notifyMe = async (sessionID: string) => {
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const { data, error } = await resend.emails.send({
+    from: 'Stickerstore <onboarding@resend.dev>',
+    to: [`${process.env.COMPANY_EMAIL}`],
+    subject: 'new order!!!',
+    html: `<p>Recieved an order with stripe session id ${sessionID}<p/>`,
+  })
+  console.log({ data });
+  console.log(process.env.COMPANY_EMAIL)
+
+  if (error) {
+    return console.error({ error });
+  }
+
+}
