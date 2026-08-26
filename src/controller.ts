@@ -56,7 +56,7 @@ console.log("API REQUEST RECEIVED");
   selectAllProducts({ sort_by, order, active, is_new })
     .then((productsData) => {
       const dbDuration = Date.now() - dbStart;
-      console.log(`DB Query / Model execution took: ${dbDuration}ms`);
+      console.log(`DB Query / Model execution took: ${dbDuration}ms for ${sort_by} ${order} ${active} ${is_new}`);
 
   
       const sendStart = Date.now();
