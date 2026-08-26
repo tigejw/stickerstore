@@ -15,7 +15,7 @@ const productImages: ProductImageSeed[] = [
   {
     product_id: 2,
     image: "tyrannosaurus-rex-main.png",
-    thumbnail: "tyrannosaurus-rex-thumb.png",
+    thumbnail: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Tyrannosaurus_skeleton.jpg/250px-Tyrannosaurus_skeleton.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
     alt_text: "tyrannosaurus rex sticker roaring",
   },
   {
