@@ -36,11 +36,6 @@ const seed = (opts: Record<string, unknown> = {}) => {
         );`,
       );
     })
-      .then(() => {
-      return db.query(
-        `CREATE INDEX IF NOT EXISTS idx_products_price ON products (price);`,
-      );
-    })
     .then(() => {
       return db.query(
         `CREATE TABLE product_images (
