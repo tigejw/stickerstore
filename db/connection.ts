@@ -7,21 +7,18 @@ if (process.env.NODE_ENV !== 'production') {
     path: `${__dirname}/../.env.${ENV}`,
   });
 }
-if (!process.env.PGDATABASE && !process.env.DATABASE_URL) {
-  throw new Error("PGDATABASE or DATABASE_URL not set");
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is missing!");
 }
 
 
-const config: PoolConfig = {};
-
-if (process.env.DATABASE_URL) {
-  config.connectionString = process.env.DATABASE_URL;
-  config.ssl = { rejectUnauthorized: false }; // Supabase requires SSL
-  config.max = 1;
-  config.idleTimeoutMillis = 1000;
-  config.connectionTimeoutMillis = 5000;
-} else {
-  config.host = process.env.PGHOST || "/var/run/postgresql";
-}
+const config: PoolConfig = {
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, 
+  max: 1,                    
+  idleTimeoutMillis: 1000,   
+  connectionTimeoutMillis: 5000,
+};
 
 export default new Pool(config);
