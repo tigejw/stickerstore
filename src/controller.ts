@@ -46,12 +46,27 @@ export const getProducts = (
   res: Response,
   next: NextFunction,
 ) => {
+console.log("API REQUEST RECEIVED");
+  const requestStart = Date.now();
+  
   const { sort_by, order, active, is_new } = req.query as ProductsQuery;
+  
+  const dbStart = Date.now();
+
   selectAllProducts({ sort_by, order, active, is_new })
     .then((productsData) => {
+      const dbDuration = Date.now() - dbStart;
+      console.log(`DB Query / Model execution took: ${dbDuration}ms`);
+
+  
+      const sendStart = Date.now();
       res.status(200).send(productsData);
+      
+      console.log(`Sending response payload took: ${Date.now() - sendStart}ms`);
+      console.log(`TOTAL CONTROLLER TIME: ${Date.now() - requestStart}ms`);
     })
     .catch((err) => {
+      console.error("Request failed inside catch block after:", Date.now() - requestStart, "ms");
       next(err);
     });
 };
