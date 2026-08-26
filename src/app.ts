@@ -46,4 +46,4 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   res.status(500).send({ error: "Server Error!", msg: err });
 });
 
-export default app;
+module.exports = app
