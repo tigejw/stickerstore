@@ -9,7 +9,6 @@
     "express": "^5.2.1",
     "pg": "^8.20.0",
     "pg-format": "^1.0.4",
-    "serverless-http": "^4.0.0",
     "stripe": "^22.1.1"
   },
   "devDependencies": {
