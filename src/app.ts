@@ -14,6 +14,7 @@ type PgError = {
 };
 
 app.use(cors())
+//update to app.use(cors({ origin: "https://frontendURL.com" })) when hosted
 
 //stripe listen --forward-to localhost:9090/handle-stripe-webhook in terminal for testing
 
@@ -43,7 +44,7 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
 
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   console.log(err, "<<< handle this");
-  res.status(500).send({ error: "Server Error!", msg: err });
+  res.status(500).send({ error: "Server Error!" });
 });
-
+//dont send full err message when live just generic res.status(500).send({ error: "Server Error!" });
 module.exports = app
