@@ -2,7 +2,7 @@ import format from "pg-format";
 import db from "../connection";
 import devData from "../data/development-data/index";
 const seed = (opts: Record<string, unknown> = {}) => {
-  const { products, productImages, bundles, bundleProducts } = devData;
+  const { products, productImages, bundles, bundleProducts, bundleImages } = devData;
 
   return db
     .query("DROP TABLE IF EXISTS order_products")
@@ -11,6 +11,9 @@ const seed = (opts: Record<string, unknown> = {}) => {
     })
     .then(() => {
       return db.query("DROP TABLE IF EXISTS product_images");
+    })
+      .then(() => {
+      return db.query("DROP TABLE IF EXISTS bundle_images");
     })
     .then(() => {
       return db.query("DROP TABLE IF EXISTS bundles");
@@ -41,10 +44,19 @@ const seed = (opts: Record<string, unknown> = {}) => {
         `CREATE TABLE product_images (
           product_image_id SERIAL PRIMARY KEY,
           product_id INT NOT NULL REFERENCES products(product_id) ON DELETE CASCADE,
-          image VARCHAR NOT NULL,
-          thumbnail VARCHAR NOT NULL,
-          alt_text VARCHAR NOT NULL
+          image_url VARCHAR NOT NULL,
+          alt_text VARCHAR NOT NULL,
+          is_thumbnail BOOLEAN NOT NULL DEFAULT FALSE,
+          display_order INT NOT NULL DEFAULT 0,
+          created_at TIMESTAMP DEFAULT NOW()
         );`,
+      );
+    })
+    .then(() => {
+      return db.query(
+        `CREATE UNIQUE INDEX one_thumbnail_per_product
+          ON product_images (product_id)
+          WHERE is_thumbnail = TRUE;`,
       );
     })
     .then(() => {
@@ -54,12 +66,31 @@ const seed = (opts: Record<string, unknown> = {}) => {
           name VARCHAR NOT NULL,
           slug VARCHAR NOT NULL UNIQUE,
           description VARCHAR NOT NULL,
-          cover_image VARCHAR NOT NULL,
           price INT NOT NULL,
           active BOOLEAN DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW(),
           is_new BOOLEAN DEFAULT TRUE
         );`,
+      );
+    })
+    .then(() => {
+      return db.query(
+        `CREATE TABLE bundle_images (
+          bundle_image_id SERIAL PRIMARY KEY,
+          bundle_id INT NOT NULL REFERENCES bundles(bundle_id) ON DELETE CASCADE,
+          image_url VARCHAR NOT NULL,
+          alt_text VARCHAR NOT NULL,
+          is_thumbnail BOOLEAN NOT NULL DEFAULT FALSE,
+          display_order INT NOT NULL DEFAULT 0,
+          created_at TIMESTAMP DEFAULT NOW()
+        );`,
+      );
+    })
+    .then(() => {
+      return db.query(
+        `CREATE UNIQUE INDEX one_thumbnail_per_bundle
+          ON bundle_images (bundle_id)
+          WHERE is_thumbnail = TRUE;`,
       );
     })
     .then(() => {
@@ -125,12 +156,31 @@ const seed = (opts: Record<string, unknown> = {}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO product_images (product_id, image, thumbnail, alt_text) VALUES %L`,
-          productImages.map(({ product_id, image, thumbnail, alt_text }) => [
-            product_id,
-            image,
-            thumbnail,
-            alt_text,
+          `INSERT INTO product_images (product_id, image_url, alt_text, is_thumbnail, display_order) VALUES %L`,
+          productImages.map(
+            ({ product_id, image_url, alt_text, is_thumbnail, display_order }) => [
+              product_id,
+              image_url,
+              alt_text,
+              is_thumbnail,
+              display_order,
+            ],
+          ),
+        ),
+      );
+    })
+    .then(() => {
+      return db.query(
+        format(
+          `INSERT INTO bundles (name, slug, description, price, active, is_new, created_at) VALUES %L`,
+          bundles.map(({ name, slug, description, price, active, isNew, createdAt }) => [
+            name,
+            slug,
+            description,
+            price,
+            active,
+            isNew,
+            createdAt,
           ]),
         ),
       );
@@ -138,17 +188,16 @@ const seed = (opts: Record<string, unknown> = {}) => {
     .then(() => {
       return db.query(
         format(
-          `INSERT INTO bundles (name, slug, description, cover_image, price, active, is_new, created_at) VALUES %L`,
-          bundles.map(({ name, slug, description, cover_image, price, active, isNew, createdAt }) => [
-            name,
-            slug,
-            description,
-            cover_image,
-            price,
-            active,
-            isNew,
-            createdAt,
-          ]),
+          `INSERT INTO bundle_images (bundle_id, image_url, alt_text, is_thumbnail, display_order) VALUES %L`,
+          bundleImages.map(
+            ({ bundle_id, image_url, alt_text, is_thumbnail, display_order }) => [
+              bundle_id,
+              image_url,
+              alt_text,
+              is_thumbnail,
+              display_order,
+            ],
+          ),
         ),
       );
     })
