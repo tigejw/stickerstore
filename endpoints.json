@@ -6,7 +6,9 @@
       "endpoints": {
         "Get /api": {
           "description": "gets endpoints!",
-          "queries": ["non_here"],
+          "queries": [
+            "non_here"
+          ],
           "exampleResponse": {
             "endpoints": {}
           }
@@ -16,7 +18,12 @@
   },
   "GET /api/products": {
     "description": "serves up an array of all products",
-    "queries": ["sort_by", "order", "active", "is_new"],
+    "queries": [
+      "sort_by",
+      "order",
+      "active",
+      "is_new"
+    ],
     "exampleResponse": [
       {
         "product_id": 1,
@@ -28,9 +35,22 @@
         "size": null,
         "is_new": true,
         "created_at": "2023-12-31T23:00:00.000Z",
-        "image": "spinosaurus-main.png",
-        "thumbnail": "spinosaurus-thumb.png",
-        "alt_text": "spinosaurus sticker front view"
+        "thumbnail_url": "spinosaurus-thumb.png",
+        "thumbnail_alt_text": "spinosaurus sticker front view",
+        "images": [
+          {
+            "image_url": "spinosaurus-thumb.png",
+            "alt_text": "spinosaurus sticker front view",
+            "is_thumbnail": true,
+            "display_order": 0
+          },
+          {
+            "image_url": "spinosaurus-main.png",
+            "alt_text": "spinosaurus sticker front view",
+            "is_thumbnail": false,
+            "display_order": 1
+          }
+        ]
       }
     ]
   },
@@ -48,26 +68,65 @@
         "size": null,
         "is_new": true,
         "created_at": "2023-12-31T23:00:00.000Z",
-        "image": "spinosaurus-main.png",
-        "thumbnail": "spinosaurus-thumb.png",
-        "alt_text": "spinosaurus sticker front view"
+        "thumbnail_url": "spinosaurus-thumb.png",
+        "thumbnail_alt_text": "spinosaurus sticker front view",
+        "images": [
+          {
+            "image_url": "spinosaurus-thumb.png",
+            "alt_text": "spinosaurus sticker front view",
+            "is_thumbnail": true,
+            "display_order": 0
+          },
+          {
+            "image_url": "spinosaurus-main.png",
+            "alt_text": "spinosaurus sticker front view",
+            "is_thumbnail": false,
+            "display_order": 1
+          }
+        ]
       }
     }
   },
   "GET /api/bundles": {
     "description": "serves up an array of all bundles",
-    "queries": ["sort_by", "order", "active", "is_new"],
+    "queries": [
+      "sort_by",
+      "order",
+      "active",
+      "is_new"
+    ],
     "exampleResponse": [
       {
         "bundle_id": 1,
         "slug": "jurassic-dinosaurs",
         "name": "Jurrasic Dinosaurs",
         "description": "jurrasic dinosaurs r cool.",
-        "cover_image": "jurr.png",
         "price": 3299,
         "active": true,
         "is_new": true,
-        "created_at": "2023-12-31T23:00:00.000Z"
+        "created_at": "2023-12-31T23:00:00.000Z",
+        "thumbnail_url": "jurassic-bundle-thumb.png",
+        "thumbnail_alt_text": "jurassic dinosaur sticker bundle",
+        "images": [
+          {
+            "image_url": "jurassic-bundle-thumb.png",
+            "alt_text": "jurassic dinosaur sticker bundle",
+            "is_thumbnail": true,
+            "display_order": 0
+          },
+          {
+            "image_url": "jurassic-bundle-main-1.png",
+            "alt_text": "jurassic dinosaur sticker bundle laid out",
+            "is_thumbnail": false,
+            "display_order": 1
+          },
+          {
+            "image_url": "jurassic-bundle-main-2.png",
+            "alt_text": "jurassic dinosaur sticker bundle close up",
+            "is_thumbnail": false,
+            "display_order": 2
+          }
+        ]
       }
     ]
   },
@@ -80,11 +139,32 @@
         "slug": "jurassic-dinosaurs",
         "name": "Jurrasic Dinosaurs",
         "description": "jurrasic dinosaurs r cool.",
-        "cover_image": "jurr.png",
         "price": 3299,
         "active": true,
         "is_new": true,
         "created_at": "2023-12-31T23:00:00.000Z",
+        "thumbnail_url": "jurassic-bundle-thumb.png",
+        "thumbnail_alt_text": "jurassic dinosaur sticker bundle",
+        "images": [
+          {
+            "image_url": "jurassic-bundle-thumb.png",
+            "alt_text": "jurassic dinosaur sticker bundle",
+            "is_thumbnail": true,
+            "display_order": 0
+          },
+          {
+            "image_url": "jurassic-bundle-main-1.png",
+            "alt_text": "jurassic dinosaur sticker bundle laid out",
+            "is_thumbnail": false,
+            "display_order": 1
+          },
+          {
+            "image_url": "jurassic-bundle-main-2.png",
+            "alt_text": "jurassic dinosaur sticker bundle close up",
+            "is_thumbnail": false,
+            "display_order": 2
+          }
+        ],
         "products": [
           {
             "product_id": 2,
@@ -93,9 +173,8 @@
             "price": 999,
             "active": true,
             "is_new": true,
-            "image": "tyrannosaurus-rex-main.png",
-            "thumbnail": "tyrannosaurus-rex-thumb.png",
-            "alt_text": "tyrannosaurus rex sticker roaring"
+            "thumbnail_url": "tyrannosaurus-rex-thumb.png",
+            "thumbnail_alt_text": "tyrannosaurus rex sticker roaring"
           }
         ]
       }
@@ -147,7 +226,7 @@
       ],
       "session": {
         "id": "cs_test_123",
-        "cancel_url" : "http://localhost:5173/cart",
+        "cancel_url": "http://localhost:5173/cart",
         "success_url": "http://localhost:5173/success",
         "url": "https://checkout.stripe.com/c/pay/cs_test_b1tcfgjBd4dZifFp....."
       }
