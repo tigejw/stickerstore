@@ -230,13 +230,21 @@ export function selectAllProducts({
       products.created_at,
       products.size,
       products.is_new,
-      product_images.image,
-      product_images.thumbnail,
-      product_images.alt_text
+      MAX(product_images.image_url) FILTER (WHERE product_images.is_thumbnail) AS thumbnail_url,
+      MAX(product_images.alt_text) FILTER (WHERE product_images.is_thumbnail) AS thumbnail_alt_text,
+      json_agg(
+        json_build_object(
+          'image_url', product_images.image_url,
+          'alt_text', product_images.alt_text,
+          'is_thumbnail', product_images.is_thumbnail,
+          'display_order', product_images.display_order
+        ) ORDER BY product_images.display_order
+      ) AS images
     FROM products
     JOIN product_images
       ON products.product_id = product_images.product_id
     ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
+    GROUP BY products.product_id
     ORDER BY ${sortColumn} ${sortDirection}
   `;
 
@@ -250,7 +258,7 @@ export function selectProductBySlug(slug: string) {
     return db
       .query(
         `
-      SELECT
+       SELECT
         products.product_id,
         products.slug,
         products.name,
@@ -260,13 +268,21 @@ export function selectProductBySlug(slug: string) {
         products.created_at,
         products.size,
         products.is_new,
-        product_images.image,
-        product_images.thumbnail,
-        product_images.alt_text
+        MAX(product_images.image_url) FILTER (WHERE product_images.is_thumbnail) AS thumbnail_url,
+        MAX(product_images.alt_text) FILTER (WHERE product_images.is_thumbnail) AS thumbnail_alt_text,
+        json_agg(
+          json_build_object(
+            'image_url', product_images.image_url,
+            'alt_text', product_images.alt_text,
+            'is_thumbnail', product_images.is_thumbnail,
+            'display_order', product_images.display_order
+          ) ORDER BY product_images.display_order
+        ) AS images
       FROM products
       JOIN product_images
         ON products.product_id = product_images.product_id
       WHERE products.slug = $1
+      GROUP BY products.product_id
         `,
         [slug],
       )
@@ -634,7 +650,7 @@ export const fulfillOrder = async (
     }
 
     await client.query("COMMIT");
-     notifyMe(fullSession.id)
+    notifyMe(fullSession.id)
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;

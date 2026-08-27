@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import request from "supertest";
-import app from "../src/app";
+const app = require("../src/app");
 import seed from "../db/seeds/seed";
 import db from "../db/connection";
 import Stripe from "stripe";
@@ -74,7 +74,7 @@ describe("GET /api/products", () => {
       });
   });
 
-  test("200: each product includes product and image fields", () => {
+  test("200: each product includes product fields, a flat thumbnail, and a sorted images array", () => {
     return request(app)
       .get("/api/products")
       .expect(200)
@@ -90,22 +90,49 @@ describe("GET /api/products", () => {
             size: null,
             is_new: true,
             created_at: expect.any(String),
-            image: "spinosaurus-main.png",
-            thumbnail: "spinosaurus-thumb.png",
-            alt_text: "spinosaurus sticker front view",
+            thumbnail_url: "spinosaurus-thumb.png",
+            thumbnail_alt_text: "spinosaurus sticker front view",
+            images: [
+              {
+                image_url: "spinosaurus-thumb.png",
+                alt_text: "spinosaurus sticker front view",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "spinosaurus-main.png",
+                alt_text: "spinosaurus sticker front view",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+            ],
           }),
         );
         expect(body[12]).toEqual(
           expect.objectContaining({
             product_id: 13,
             slug: "pachycephalosaurus",
-            image: "pachycephalosaurus-main.png",
-            thumbnail: "pachycephalosaurus-thumb.png",
-            alt_text: "pachycephalosaurus sticker dome head",
+            thumbnail_url: "pachycephalosaurus-thumb.png",
+            thumbnail_alt_text: "pachycephalosaurus sticker dome head",
+            images: [
+              {
+                image_url: "pachycephalosaurus-thumb.png",
+                alt_text: "pachycephalosaurus sticker dome head",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "pachycephalosaurus-main.png",
+                alt_text: "pachycephalosaurus sticker dome head",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+            ],
           }),
         );
       });
   });
+
 
   describe("query parameters", () => {
     test("200: filters products by is_new=true", () => {
@@ -290,23 +317,36 @@ describe("GET /api/products/:slug", () => {
               size: null,
               is_new: true,
               created_at: "2023-12-31T23:00:00.000Z",
-              image: "spinosaurus-main.png",
-              thumbnail: "spinosaurus-thumb.png",
-              alt_text: "spinosaurus sticker front view",
+              thumbnail_url: "spinosaurus-thumb.png",
+              thumbnail_alt_text: "spinosaurus sticker front view",
+              images: [
+                {
+                  image_url: "spinosaurus-thumb.png",
+                  alt_text: "spinosaurus sticker front view",
+                  is_thumbnail: true,
+                  display_order: 0,
+                },
+                {
+                  image_url: "spinosaurus-main.png",
+                  alt_text: "spinosaurus sticker front view",
+                  is_thumbnail: false,
+                  display_order: 1,
+                },
+              ],
             },
           }),
         );
       });
   });
 
-  test("404: responds with not found when the slug does not exist", () => {
-    return request(app)
-      .get("/api/products/not-a-real-slug")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.error).toBe("Not found!");
-      });
-  });
+test("404: responds with not found when the slug does not exist", () => {
+  return request(app)
+    .get("/api/products/not-a-real-slug")
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.error).toBe("Not found!");
+    });
+});
 });
 
 describe("GET /api/bundles", () => {
