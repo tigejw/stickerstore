@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import request from "supertest";
-import app from "../src/app";
+const app = require("../src/app");
 import seed from "../db/seeds/seed";
 import db from "../db/connection";
 import Stripe from "stripe";
@@ -74,7 +74,7 @@ describe("GET /api/products", () => {
       });
   });
 
-  test("200: each product includes product and image fields", () => {
+  test("200: each product includes product fields, a flat thumbnail, and a sorted images array", () => {
     return request(app)
       .get("/api/products")
       .expect(200)
@@ -90,22 +90,49 @@ describe("GET /api/products", () => {
             size: null,
             is_new: true,
             created_at: expect.any(String),
-            image: "spinosaurus-main.png",
-            thumbnail: "spinosaurus-thumb.png",
-            alt_text: "spinosaurus sticker front view",
+            thumbnail_url: "spinosaurus-thumb.png",
+            thumbnail_alt_text: "spinosaurus sticker front view",
+            images: [
+              {
+                image_url: "spinosaurus-thumb.png",
+                alt_text: "spinosaurus sticker front view",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "spinosaurus-main.png",
+                alt_text: "spinosaurus sticker front view",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+            ],
           }),
         );
         expect(body[12]).toEqual(
           expect.objectContaining({
             product_id: 13,
             slug: "pachycephalosaurus",
-            image: "pachycephalosaurus-main.png",
-            thumbnail: "pachycephalosaurus-thumb.png",
-            alt_text: "pachycephalosaurus sticker dome head",
+            thumbnail_url: "pachycephalosaurus-thumb.png",
+            thumbnail_alt_text: "pachycephalosaurus sticker dome head",
+            images: [
+              {
+                image_url: "pachycephalosaurus-thumb.png",
+                alt_text: "pachycephalosaurus sticker dome head",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "pachycephalosaurus-main.png",
+                alt_text: "pachycephalosaurus sticker dome head",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+            ],
           }),
         );
       });
   });
+
 
   describe("query parameters", () => {
     test("200: filters products by is_new=true", () => {
@@ -290,9 +317,22 @@ describe("GET /api/products/:slug", () => {
               size: null,
               is_new: true,
               created_at: "2023-12-31T23:00:00.000Z",
-              image: "spinosaurus-main.png",
-              thumbnail: "spinosaurus-thumb.png",
-              alt_text: "spinosaurus sticker front view",
+              thumbnail_url: "spinosaurus-thumb.png",
+              thumbnail_alt_text: "spinosaurus sticker front view",
+              images: [
+                {
+                  image_url: "spinosaurus-thumb.png",
+                  alt_text: "spinosaurus sticker front view",
+                  is_thumbnail: true,
+                  display_order: 0,
+                },
+                {
+                  image_url: "spinosaurus-main.png",
+                  alt_text: "spinosaurus sticker front view",
+                  is_thumbnail: false,
+                  display_order: 1,
+                },
+              ],
             },
           }),
         );
@@ -332,7 +372,7 @@ describe("GET /api/bundles", () => {
       });
   });
 
-  test("200: each bundle includes bundle and lifecycle fields", () => {
+  test("200: each bundle includes bundle fields, a flat thumbnail, and a sorted images array", () => {
     return request(app)
       .get("/api/bundles")
       .expect(200)
@@ -343,11 +383,32 @@ describe("GET /api/bundles", () => {
             slug: "jurassic-dinosaurs",
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
-            cover_image: "jurr.png",
             price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
+            thumbnail_url: "jurassic-bundle-thumb.png",
+            thumbnail_alt_text: "jurassic dinosaur sticker bundle",
+            images: [
+              {
+                image_url: "jurassic-bundle-thumb.png",
+                alt_text: "jurassic dinosaur sticker bundle",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "jurassic-bundle-main-1.png",
+                alt_text: "jurassic dinosaur sticker bundle laid out",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+              {
+                image_url: "jurassic-bundle-main-2.png",
+                alt_text: "jurassic dinosaur sticker bundle close up",
+                is_thumbnail: false,
+                display_order: 2,
+              },
+            ],
           }),
         );
         expect(body[1]).toEqual(
@@ -356,15 +417,31 @@ describe("GET /api/bundles", () => {
             slug: "cretaceous-dinosaurs",
             name: "Cretaceous Dinosaurs",
             description: "cretaceous dinosaurs r cool",
-            cover_image: "cret.png",
             price: 3099,
             active: true,
             is_new: false,
             created_at: expect.any(String),
+            thumbnail_url: "cretaceous-bundle-thumb.png",
+            thumbnail_alt_text: "cretaceous dinosaur sticker bundle",
+            images: [
+              {
+                image_url: "cretaceous-bundle-thumb.png",
+                alt_text: "cretaceous dinosaur sticker bundle",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "cretaceous-bundle-main-1.png",
+                alt_text: "cretaceous dinosaur sticker bundle laid out",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+            ],
           }),
         );
       });
   });
+
 
   describe("query parameters", () => {
     test("200: filters bundles by is_new=true", () => {
@@ -505,11 +582,32 @@ describe("GET /api/bundles/:slug", () => {
             slug: "jurassic-dinosaurs",
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
-            cover_image: "jurr.png",
             price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
+            thumbnail_url: "jurassic-bundle-thumb.png",
+            thumbnail_alt_text: "jurassic dinosaur sticker bundle",
+            images: [
+              {
+                image_url: "jurassic-bundle-thumb.png",
+                alt_text: "jurassic dinosaur sticker bundle",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "jurassic-bundle-main-1.png",
+                alt_text: "jurassic dinosaur sticker bundle laid out",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+              {
+                image_url: "jurassic-bundle-main-2.png",
+                alt_text: "jurassic dinosaur sticker bundle close up",
+                is_thumbnail: false,
+                display_order: 2,
+              },
+            ],
             products: [
               {
                 product_id: 2,
@@ -518,9 +616,8 @@ describe("GET /api/bundles/:slug", () => {
                 price: 999,
                 active: true,
                 is_new: true,
-                image: "tyrannosaurus-rex-main.png",
-                thumbnail: "tyrannosaurus-rex-thumb.png",
-                alt_text: "tyrannosaurus rex sticker roaring",
+                thumbnail_url: "tyrannosaurus-rex-thumb.png",
+                thumbnail_alt_text: "tyrannosaurus rex sticker roaring",
               },
               {
                 product_id: 4,
@@ -529,9 +626,8 @@ describe("GET /api/bundles/:slug", () => {
                 price: 849,
                 active: true,
                 is_new: false,
-                image: "velociraptor-main.png",
-                thumbnail: "velociraptor-thumb.png",
-                alt_text: "velociraptor sticker running",
+                thumbnail_url: "velociraptor-thumb.png",
+                thumbnail_alt_text: "velociraptor sticker running",
               },
               {
                 product_id: 11,
@@ -540,9 +636,8 @@ describe("GET /api/bundles/:slug", () => {
                 price: 919,
                 active: true,
                 is_new: false,
-                image: "allosaurus-main.png",
-                thumbnail: "allosaurus-thumb.png",
-                alt_text: "allosaurus sticker open mouth",
+                thumbnail_url: "allosaurus-thumb.png",
+                thumbnail_alt_text: "allosaurus sticker open mouth",
               },
               {
                 product_id: 12,
@@ -551,11 +646,9 @@ describe("GET /api/bundles/:slug", () => {
                 price: 889,
                 active: true,
                 is_new: false,
-                image: "carnotaurus-main.png",
-                thumbnail: "carnotaurus-thumb.png",
-                alt_text: "carnotaurus sticker horned face",
-              },
-            ],
+                thumbnail_url: "carnotaurus-thumb.png",
+                thumbnail_alt_text: "carnotaurus sticker horned face",
+              },],
           },
         });
       });
@@ -603,7 +696,7 @@ describe("POST /api/create-webhook-session", () => {
             price_data: {
               currency: "eur",
               product_data: {
-                image: "spinosaurus-thumb.png",
+                images: ["spinosaurus-thumb.png"],
                 name: "spinosaurus sticker",
               },
               unit_amount: 899,
@@ -614,7 +707,7 @@ describe("POST /api/create-webhook-session", () => {
             price_data: {
               currency: "eur",
               product_data: {
-                image: "jurr.png",
+                images: ["jurassic-bundle-thumb.png"],
                 name: "Jurrasic Dinosaurs",
               },
               unit_amount: 3299,

@@ -1,6 +1,6 @@
 import format from "pg-format";
 import db from "../../db/connection";
-
+import { Resend } from "resend";
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
     .query(format("SELECT * FROM %I WHERE %I = $1", table, column), [value])
@@ -21,8 +21,6 @@ export const notifyMe = async (sessionID: string) => {
     subject: 'new order!!!',
     html: `<p>Recieved an order with stripe session id ${sessionID}<p/>`,
   })
-  console.log({ data });
-  console.log(process.env.COMPANY_EMAIL)
 
   if (error) {
     return console.error({ error });

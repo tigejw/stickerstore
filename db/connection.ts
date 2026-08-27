@@ -8,8 +8,8 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is missing!");
+if (!process.env.DATABASE_URL && !process.env.PGDATABASE) {
+  throw new Error("DATABASE_URL environment variable or PGDATABASE is missing!");
 }
 
 

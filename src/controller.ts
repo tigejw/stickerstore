@@ -137,7 +137,7 @@ export const createWebhookSession = (
               currency: "eur",
               product_data: {
                 name: item.product.name,
-                images: [item.product.thumbnail],
+                images: [item.product.thumbnail_url],
               },
               unit_amount: item.product.price,
             },
@@ -150,7 +150,7 @@ export const createWebhookSession = (
             currency: "eur",
             product_data: {
               name: item.bundle.name,
-              images: [item.bundle.cover_image],
+              images: [item.bundle.thumbnail_url],
             },
             unit_amount: item.bundle.price,
           },
