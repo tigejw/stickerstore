@@ -339,17 +339,17 @@ describe("GET /api/products/:slug", () => {
       });
   });
 
-test("404: responds with not found when the slug does not exist", () => {
-  return request(app)
-    .get("/api/products/not-a-real-slug")
-    .expect(404)
-    .then(({ body }) => {
-      expect(body.error).toBe("Not found!");
-    });
-});
+  test("404: responds with not found when the slug does not exist", () => {
+    return request(app)
+      .get("/api/products/not-a-real-slug")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Not found!");
+      });
+  });
 });
 
-describe("GET /api/bundles", () => {
+describe.only("GET /api/bundles", () => {
   test("200: responds with an array", () => {
     return request(app)
       .get("/api/bundles")
@@ -372,7 +372,7 @@ describe("GET /api/bundles", () => {
       });
   });
 
-  test("200: each bundle includes bundle and lifecycle fields", () => {
+  test("200: each bundle includes bundle fields, a flat thumbnail, and a sorted images array", () => {
     return request(app)
       .get("/api/bundles")
       .expect(200)
@@ -383,11 +383,32 @@ describe("GET /api/bundles", () => {
             slug: "jurassic-dinosaurs",
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
-            cover_image: "jurr.png",
             price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
+            thumbnail_url: "jurassic-bundle-thumb.png",
+            thumbnail_alt_text: "jurassic dinosaur sticker bundle",
+            images: [
+              {
+                image_url: "jurassic-bundle-thumb.png",
+                alt_text: "jurassic dinosaur sticker bundle",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "jurassic-bundle-main-1.png",
+                alt_text: "jurassic dinosaur sticker bundle laid out",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+              {
+                image_url: "jurassic-bundle-main-2.png",
+                alt_text: "jurassic dinosaur sticker bundle close up",
+                is_thumbnail: false,
+                display_order: 2,
+              },
+            ],
           }),
         );
         expect(body[1]).toEqual(
@@ -396,15 +417,31 @@ describe("GET /api/bundles", () => {
             slug: "cretaceous-dinosaurs",
             name: "Cretaceous Dinosaurs",
             description: "cretaceous dinosaurs r cool",
-            cover_image: "cret.png",
             price: 3099,
             active: true,
             is_new: false,
             created_at: expect.any(String),
+            thumbnail_url: "cretaceous-bundle-thumb.png",
+            thumbnail_alt_text: "cretaceous dinosaur sticker bundle",
+            images: [
+              {
+                image_url: "cretaceous-bundle-thumb.png",
+                alt_text: "cretaceous dinosaur sticker bundle",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "cretaceous-bundle-main-1.png",
+                alt_text: "cretaceous dinosaur sticker bundle laid out",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+            ],
           }),
         );
       });
   });
+
 
   describe("query parameters", () => {
     test("200: filters bundles by is_new=true", () => {

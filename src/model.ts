@@ -319,18 +319,30 @@ export function selectAllBundles({
   }
 
   const dbQuery = `
-    SELECT
+      SELECT
       bundles.bundle_id,
       bundles.slug,
       bundles.name,
       bundles.description,
-      bundles.cover_image,
       bundles.price,
       bundles.active,
       bundles.created_at,
-      bundles.is_new
+      bundles.is_new,
+      MAX(bundle_images.image_url) FILTER (WHERE bundle_images.is_thumbnail) AS thumbnail_url,
+      MAX(bundle_images.alt_text) FILTER (WHERE bundle_images.is_thumbnail) AS thumbnail_alt_text,
+      json_agg(
+        json_build_object(
+          'image_url', bundle_images.image_url,
+          'alt_text', bundle_images.alt_text,
+          'is_thumbnail', bundle_images.is_thumbnail,
+          'display_order', bundle_images.display_order
+        ) ORDER BY bundle_images.display_order
+      ) AS images
     FROM bundles
+    JOIN bundle_images
+      ON bundles.bundle_id = bundle_images.bundle_id
     ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
+    GROUP BY bundles.bundle_id
     ORDER BY ${sortColumn} ${sortDirection}
   `;
 

@@ -33,6 +33,7 @@
     "start": "tsx ./src/listen.ts",
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "PGDATABASE=sticker_store tsx ./db/seeds/run-seeds",
+    "test-seed": "NODE_ENV=test npm run seed",
     "test": "NODE_ENV=test jest",
     "print": "psql -f psqltest.sql > results.md",
     "seed-prod": "NODE_ENV=production npm run seed"
