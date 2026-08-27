@@ -664,7 +664,7 @@ describe("GET /api/bundles/:slug", () => {
   });
 });
 
-describe.only("POST /api/create-webhook-session", () => {
+describe("POST /api/create-webhook-session", () => {
   test("200: responds with checkout items and line items", () => {
     return request(app)
       .post("/api/create-webhook-session")
@@ -696,7 +696,7 @@ describe.only("POST /api/create-webhook-session", () => {
             price_data: {
               currency: "eur",
               product_data: {
-                image: "spinosaurus-thumb.png",
+                images: ["spinosaurus-thumb.png"],
                 name: "spinosaurus sticker",
               },
               unit_amount: 899,
@@ -707,7 +707,7 @@ describe.only("POST /api/create-webhook-session", () => {
             price_data: {
               currency: "eur",
               product_data: {
-                image: "jurr.png",
+                images: ["jurassic-bundle-thumb.png"],
                 name: "Jurrasic Dinosaurs",
               },
               unit_amount: 3299,
