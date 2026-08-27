@@ -349,7 +349,7 @@ describe("GET /api/products/:slug", () => {
   });
 });
 
-describe.only("GET /api/bundles", () => {
+describe("GET /api/bundles", () => {
   test("200: responds with an array", () => {
     return request(app)
       .get("/api/bundles")
@@ -582,11 +582,32 @@ describe("GET /api/bundles/:slug", () => {
             slug: "jurassic-dinosaurs",
             name: "Jurrasic Dinosaurs",
             description: "jurrasic dinosaurs r cool.",
-            cover_image: "jurr.png",
             price: 3299,
             active: true,
             is_new: true,
             created_at: expect.any(String),
+            thumbnail_url: "jurassic-bundle-thumb.png",
+            thumbnail_alt_text: "jurassic dinosaur sticker bundle",
+            images: [
+              {
+                image_url: "jurassic-bundle-thumb.png",
+                alt_text: "jurassic dinosaur sticker bundle",
+                is_thumbnail: true,
+                display_order: 0,
+              },
+              {
+                image_url: "jurassic-bundle-main-1.png",
+                alt_text: "jurassic dinosaur sticker bundle laid out",
+                is_thumbnail: false,
+                display_order: 1,
+              },
+              {
+                image_url: "jurassic-bundle-main-2.png",
+                alt_text: "jurassic dinosaur sticker bundle close up",
+                is_thumbnail: false,
+                display_order: 2,
+              },
+            ],
             products: [
               {
                 product_id: 2,
@@ -595,9 +616,8 @@ describe("GET /api/bundles/:slug", () => {
                 price: 999,
                 active: true,
                 is_new: true,
-                image: "tyrannosaurus-rex-main.png",
-                thumbnail: "tyrannosaurus-rex-thumb.png",
-                alt_text: "tyrannosaurus rex sticker roaring",
+                thumbnail_url: "tyrannosaurus-rex-thumb.png",
+                thumbnail_alt_text: "tyrannosaurus rex sticker roaring",
               },
               {
                 product_id: 4,
@@ -606,9 +626,8 @@ describe("GET /api/bundles/:slug", () => {
                 price: 849,
                 active: true,
                 is_new: false,
-                image: "velociraptor-main.png",
-                thumbnail: "velociraptor-thumb.png",
-                alt_text: "velociraptor sticker running",
+                thumbnail_url: "velociraptor-thumb.png",
+                thumbnail_alt_text: "velociraptor sticker running",
               },
               {
                 product_id: 11,
@@ -617,9 +636,8 @@ describe("GET /api/bundles/:slug", () => {
                 price: 919,
                 active: true,
                 is_new: false,
-                image: "allosaurus-main.png",
-                thumbnail: "allosaurus-thumb.png",
-                alt_text: "allosaurus sticker open mouth",
+                thumbnail_url: "allosaurus-thumb.png",
+                thumbnail_alt_text: "allosaurus sticker open mouth",
               },
               {
                 product_id: 12,
@@ -628,11 +646,9 @@ describe("GET /api/bundles/:slug", () => {
                 price: 889,
                 active: true,
                 is_new: false,
-                image: "carnotaurus-main.png",
-                thumbnail: "carnotaurus-thumb.png",
-                alt_text: "carnotaurus sticker horned face",
-              },
-            ],
+                thumbnail_url: "carnotaurus-thumb.png",
+                thumbnail_alt_text: "carnotaurus sticker horned face",
+              },],
           },
         });
       });
@@ -648,7 +664,7 @@ describe("GET /api/bundles/:slug", () => {
   });
 });
 
-describe("POST /api/create-webhook-session", () => {
+describe.only("POST /api/create-webhook-session", () => {
   test("200: responds with checkout items and line items", () => {
     return request(app)
       .post("/api/create-webhook-session")
@@ -713,7 +729,7 @@ describe("POST /api/create-webhook-session", () => {
   });
 });
 
-describe("POST /handle-stripe-webhook", () => {
+describe.only("POST /handle-stripe-webhook", () => {
   test("200: valid signed checkout.session.completed payload persists an order and order_products", () => {
     const mockSession = {
       id: "cs_test_mock_valid_1",
