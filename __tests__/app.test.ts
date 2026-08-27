@@ -729,7 +729,7 @@ describe("POST /api/create-webhook-session", () => {
   });
 });
 
-describe.only("POST /handle-stripe-webhook", () => {
+describe("POST /handle-stripe-webhook", () => {
   test("200: valid signed checkout.session.completed payload persists an order and order_products", () => {
     const mockSession = {
       id: "cs_test_mock_valid_1",
