@@ -5,7 +5,7 @@
 
 products and bundles are added to the database via 'npm run upload', which will process every folder inside "__productsUpload/"
 
-# create a folder
+### create a folder
 
 inside "__productsUpload/" create one folder per product or bundle with the folder named as the slug of the product. 
 
@@ -14,7 +14,7 @@ inside "__productsUpload/" create one folder per product or bundle with the fold
         spinosaurs/
 ```
 
-# add images
+### add images
 
 add images according to the following rules:
 - thumbnail must be named `thumbnail`.<ext>
@@ -31,7 +31,7 @@ add images according to the following rules:
             3.jpeg
 ```
 
-# add manifest
+### add manifest
 
 a manifest is required to provide the information about each entry
 the manifest shape differs slightly based upon wether the entry is a product (single sticker) or bundle (collection of single stickers)
@@ -68,7 +68,7 @@ price is in cents and altText requires one entry per image file, keyed with the 
   }
 }
 ```
-# upload the folder!
+### upload the folder!
 
 run ```npm run upload```
 
