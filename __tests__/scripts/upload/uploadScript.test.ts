@@ -11,7 +11,7 @@ import { moveToSuccessfulUploads } from '../../../src/scripts/upload/moveToSucce
 import { insertProductWithImages } from '../../../src/scripts/upload/insertProductWithImages';
 import { insertBundleWithImages } from '../../../src/scripts/upload/insertBundleWithImages';
 import { ImageRecord } from '../../../src/scripts/upload/insertImageRows';
-
+import { discoverEntryFolders } from '../../../src/scripts/upload/discoverEntryFolders';
 jest.mock('fs');
 
 describe("buildStoragePath", () => {
@@ -476,7 +476,7 @@ describe("insertToDB", () => {
 
         afterEach(() => jest.resetAllMocks());
 
-        it('inserts the product and its images inside a committed transaction', async () => {
+        test('inserts the product and its images inside a committed transaction', async () => {
             const client = createMockClient();
             client.query
                 .mockResolvedValueOnce(undefined) // BEGIN
@@ -494,7 +494,7 @@ describe("insertToDB", () => {
             expect(client.release).toHaveBeenCalled();
         });
 
-        it('rolls back and releases the client if the product insert fails', async () => {
+        test('rolls back and releases the client if the product insert fails', async () => {
             const client = createMockClient();
             client.query
                 .mockResolvedValueOnce(undefined) // BEGIN
@@ -511,7 +511,7 @@ describe("insertToDB", () => {
             expect(client.release).toHaveBeenCalled();
         });
 
-        it('rolls back and releases the client if the image insert fails', async () => {
+        test('rolls back and releases the client if the image insert fails', async () => {
             const client = createMockClient();
             client.query
                 .mockResolvedValueOnce(undefined) // BEGIN
@@ -538,7 +538,7 @@ describe("insertToDB", () => {
 
         afterEach(() => jest.resetAllMocks());
 
-        it('inserts the bundle, links its products, and inserts its images inside one transaction', async () => {
+        test('inserts the bundle, links its products, and inserts its images inside one transaction', async () => {
             const client = createMockClient();
             client.query
                 .mockResolvedValueOnce(undefined) // BEGIN
@@ -563,7 +563,7 @@ describe("insertToDB", () => {
             expect(client.release).toHaveBeenCalled();
         });
 
-        it('rolls back if one of the productSlugs does not exist in the DB', async () => {
+        test('rolls back if one of the productSlugs does not exist in the DB', async () => {
             const client = createMockClient();
             client.query
                 .mockResolvedValueOnce(undefined) // BEGIN
@@ -581,7 +581,7 @@ describe("insertToDB", () => {
             expect(client.release).toHaveBeenCalled();
         });
 
-        it('rolls back if the bundle insert itself fails', async () => {
+        test('rolls back if the bundle insert itself fails', async () => {
             const client = createMockClient();
             client.query
                 .mockResolvedValueOnce(undefined) // BEGIN
@@ -599,3 +599,71 @@ describe("insertToDB", () => {
         });
     })
 })
+
+const discoverFoldersMockedFs = fs as jest.Mocked<typeof fs>;
+
+describe('discoverEntryFolders', () => {
+    function dirent(name: string, isDirectory: boolean): fs.Dirent {
+        return { name, isDirectory: () => isDirectory } as unknown as fs.Dirent;
+    }
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
+
+    test('returns folder paths for subfolders that contain a manifest.json', () => {
+        discoverFoldersMockedFs.readdirSync.mockReturnValue([
+            dirent('spinosaurus', true),
+            dirent('trex', true),
+            dirent('README.md', false),
+        ] as any);
+
+        discoverFoldersMockedFs.existsSync.mockImplementation((p) => {
+            const pathStr = p.toString();
+            return pathStr.includes('spinosaurus') || pathStr.includes('trex');
+        });
+
+        const result = discoverEntryFolders('./uploads');
+
+        expect(result).toEqual([path.join('./uploads', 'spinosaurus'), path.join('./uploads', 'trex')]);
+    });
+
+    test('excludes subfolders with no manifest.json', () => {
+        discoverFoldersMockedFs.readdirSync.mockReturnValue([
+            dirent('spinosaurus', true),
+            dirent('incomplete-folder', true),
+        ] as any);
+
+        discoverFoldersMockedFs.existsSync.mockImplementation((p) => p.toString().includes('spinosaurus'));
+
+        const result = discoverEntryFolders('./uploads');
+
+        expect(result).toEqual([path.join('./uploads', 'spinosaurus')]);
+    });
+
+    test('excludes non-directory entries entirely, regardless of manifest presence', () => {
+        discoverFoldersMockedFs.readdirSync.mockReturnValue([dirent('stray-file.json', false)] as any);
+        discoverFoldersMockedFs.existsSync.mockReturnValue(true);
+
+        const result = discoverEntryFolders('./uploads');
+
+        expect(result).toEqual([]);
+    });
+
+    test('returns an empty array when the root has no matching subfolders', () => {
+        discoverFoldersMockedFs.readdirSync.mockReturnValue([]);
+
+        const result = discoverEntryFolders('./uploads');
+
+        expect(result).toEqual([]);
+    });
+
+    test('throws a descriptive error if the root directory cannot be read', () => {
+        discoverFoldersMockedFs.readdirSync.mockImplementation(() => {
+            throw new Error('ENOENT: no such directory');
+        });
+
+        expect(() => discoverEntryFolders('./missing-root')).toThrow(/could not read root uploads directory/i);
+    });
+});
+
+
