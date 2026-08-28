@@ -1,10 +1,16 @@
 import sharp from "sharp"
 import fs from 'fs';
+import path from 'path';
 import { buildStoragePath } from "../../../src/scripts/upload/buildStoragePath"
 import { validateImageFileSet } from "../../../src/scripts/upload/validateImageFileSet";
 import { validateManifestEntry, ManifestEntry } from "../../../src/scripts/upload/validateManifestEntry";
 import { convertToWebp } from '../../../src/scripts/upload/convertToWebp';
 import { readManifest } from '../../../src/scripts/upload/readManifest';
+import { moveToSuccessfulUploads } from '../../../src/scripts/upload/moveToSuccessfulUploads';
+
+jest.mock('fs');
+const manifestMockedFs = fs as jest.Mocked<typeof fs>;
+const uploadsFolderMockedFs = fs as jest.Mocked<typeof fs>;
 
 describe("buildStoragePath", () => {
     test("builds a path for non-thumbnail product images using slug and fileName with a .webp extension", () => {
@@ -269,46 +275,106 @@ describe('convert to webp', () => {
     });
 });
 
-jest.mock('fs');
-const mockedFs = fs as jest.Mocked<typeof fs>;
 
 describe('readManifest', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
-  test('reads and parses a valid manifest file', () => {
-    mockedFs.readFileSync.mockReturnValue(JSON.stringify({ slug: 'spinosaurus', price: 350 }));
-
-    const manifest = readManifest('./uploads/spinosaurus/manifest.json');
-
-    expect(manifest).toEqual({ slug: 'spinosaurus', price: 350 });
-    expect(mockedFs.readFileSync).toHaveBeenCalledWith('./uploads/spinosaurus/manifest.json', 'utf-8');
-  });
-
-  test('throws a descriptive error if the file cannot be read', () => {
-    mockedFs.readFileSync.mockImplementation(() => {
-      throw new Error('ENOENT: no such file');
+    afterEach(() => {
+        jest.resetAllMocks();
     });
 
-    expect(() => readManifest('./missing/manifest.json')).toThrow(/could not read manifest file/i);
-  });
+    test('reads and parses a valid manifest file', () => {
+        manifestMockedFs.readFileSync.mockReturnValue(JSON.stringify({ slug: 'spinosaurus', price: 350 }));
 
-  test('throws a descriptive error if the file is not valid JSON', () => {
-    mockedFs.readFileSync.mockReturnValue('{ not: valid json');
+        const manifest = readManifest('./uploads/spinosaurus/manifest.json');
 
-    expect(() => readManifest('./bad/manifest.json')).toThrow(/not valid json/i);
-  });
+        expect(manifest).toEqual({ slug: 'spinosaurus', price: 350 });
+        expect(manifestMockedFs.readFileSync).toHaveBeenCalledWith('./uploads/spinosaurus/manifest.json', 'utf-8');
+    });
 
-  test('throws if the parsed JSON is an array', () => {
-    mockedFs.readFileSync.mockReturnValue(JSON.stringify([{ slug: 'a' }]));
+    test('throws a descriptive error if the file cannot be read', () => {
+        manifestMockedFs.readFileSync.mockImplementation(() => {
+            throw new Error('ENOENT: no such file');
+        });
 
-    expect(() => readManifest('./array/manifest.json')).toThrow(/must be a json object/i);
-  });
+        expect(() => readManifest('./missing/manifest.json')).toThrow(/could not read manifest file/i);
+    });
 
-  test('throws if the parsed JSON is a primitive', () => {
-    mockedFs.readFileSync.mockReturnValue(JSON.stringify('just a string'));
+    test('throws a descriptive error if the file is not valid JSON', () => {
+        manifestMockedFs.readFileSync.mockReturnValue('{ not: valid json');
 
-    expect(() => readManifest('./primitive/manifest.json')).toThrow(/must be a json object/i);
-  });
+        expect(() => readManifest('./bad/manifest.json')).toThrow(/not valid json/i);
+    });
+
+    test('throws if the parsed JSON is an array', () => {
+        manifestMockedFs.readFileSync.mockReturnValue(JSON.stringify([{ slug: 'a' }]));
+
+        expect(() => readManifest('./array/manifest.json')).toThrow(/must be a json object/i);
+    });
+
+    test('throws if the parsed JSON is a primitive', () => {
+        manifestMockedFs.readFileSync.mockReturnValue(JSON.stringify('just a string'));
+
+        expect(() => readManifest('./primitive/manifest.json')).toThrow(/must be a json object/i);
+    });
+});
+
+describe('moveToSuccessfulUploads', () => {
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
+
+    test('moves the folder into successfulUploads when no name collision exists', () => {
+        uploadsFolderMockedFs.existsSync.mockReturnValue(false); // neither destination nor root exists yet
+        uploadsFolderMockedFs.mkdirSync.mockReturnValue(undefined as any);
+        uploadsFolderMockedFs.renameSync.mockReturnValue(undefined);
+
+        moveToSuccessfulUploads('productsUpload/spinosaurus', 'successfulUploads');
+
+        expect(uploadsFolderMockedFs.renameSync).toHaveBeenCalledWith(
+            'productsUpload/spinosaurus',
+            path.join('successfulUploads', 'spinosaurus')
+        );
+    });
+
+    test('creates the successfulUploads root directory if it does not exist yet', () => {
+        uploadsFolderMockedFs.existsSync.mockReturnValue(false);
+        uploadsFolderMockedFs.mkdirSync.mockReturnValue(undefined as any);
+        uploadsFolderMockedFs.renameSync.mockReturnValue(undefined);
+
+        moveToSuccessfulUploads('productsUpload/spinosaurus', 'successfulUploads');
+
+        expect(uploadsFolderMockedFs.mkdirSync).toHaveBeenCalledWith('successfulUploads', { recursive: true });
+    });
+
+    test('does not try to create the root directory if it already exists', () => {
+        uploadsFolderMockedFs.existsSync.mockImplementation((p) => p.toString() === 'successfulUploads');
+        uploadsFolderMockedFs.renameSync.mockReturnValue(undefined);
+
+        moveToSuccessfulUploads('productsUpload/spinosaurus', 'successfulUploads');
+
+        expect(uploadsFolderMockedFs.mkdirSync).not.toHaveBeenCalled();
+    });
+
+    test('throws if a folder with the same name already exists in successfulUploads', () => {
+        uploadsFolderMockedFs.existsSync.mockImplementation((p) =>
+            p.toString() === path.join('successfulUploads', 'spinosaurus')
+        );
+
+        expect(() =>
+            moveToSuccessfulUploads('productsUpload/spinosaurus', 'successfulUploads')
+        ).toThrow(/already exists/i);
+
+        expect(uploadsFolderMockedFs.renameSync).not.toHaveBeenCalled();
+    });
+
+    test('throws a descriptive error if the rename operation itself fails', () => {
+        uploadsFolderMockedFs.existsSync.mockReturnValue(false);
+        uploadsFolderMockedFs.mkdirSync.mockReturnValue(undefined as any);
+        uploadsFolderMockedFs.renameSync.mockImplementation(() => {
+            throw new Error('EACCES: permission denied');
+        });
+
+        expect(() =>
+            moveToSuccessfulUploads('productsUpload/spinosaurus', 'successfulUploads')
+        ).toThrow(/failed to move/i);
+    });
 });
