@@ -32,7 +32,7 @@ const seed = (opts: Record<string, unknown> = {}) => {
           name VARCHAR NOT NULL,
           description VARCHAR NOT NULL,
           price INT NOT NULL,
-          active BOOLEAN DEFAULT FALSE,
+          active BOOLEAN DEFAULT TRUE,
           created_at TIMESTAMP DEFAULT NOW(),
           size VARCHAR,
           is_new BOOLEAN DEFAULT TRUE
