@@ -46,5 +46,5 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   console.log(err, "<<< handle this");
   res.status(500).send({ error: "Server Error!" });
 });
-//dont send full err message when live just generic res.status(500).send({ error: "Server Error!" });
+
 module.exports = app

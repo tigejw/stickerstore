@@ -4,6 +4,7 @@
   "description": "",
   "main": "listen.ts",
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -23,6 +24,7 @@
     "@types/supertest": "^7.2.0",
     "jest": "^30.4.2",
     "nodemon": "^3.1.14",
+    "sharp": "^0.35.4",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",
     "tsx": "^4.21.0",
@@ -36,7 +38,8 @@
     "test-seed": "NODE_ENV=test npm run seed",
     "test": "NODE_ENV=test jest",
     "print": "psql -f psqltest.sql > results.md",
-    "seed-prod": "NODE_ENV=production npm run seed"
+    "seed-prod": "NODE_ENV=production npm run seed",
+    "upload": "tsx src/scripts/upload/index.ts"
   },
   "jest": {
     "preset": "ts-jest",

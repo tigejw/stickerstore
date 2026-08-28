@@ -1,0 +1,12 @@
+{
+  "type": "product",
+  "slug": "pikachu",
+  "name": "Pikacu",
+  "description": "An electric Pokemon!",
+  "price": 333,
+  "altText": {
+    "thumbnail.png": "Pikacu sticker thumbnail",
+    "0.jpg": "Overhead shot of the Pikacu sticker",
+    "1.png": "Close-up shot of the Pikacu sticker"
+  }
+}
