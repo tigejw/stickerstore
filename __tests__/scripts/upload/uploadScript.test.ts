@@ -1,4 +1,4 @@
-import { buildStoragePath } from "../../../src/scripts/upload/imageStoragePathGenerator"
+import { buildStoragePath } from "../../../src/scripts/upload/buildStoragePath"
 
 describe.only("buildStoragePath", () => {
   test("builds a path for non-thumbnail product images using slug and fileName with a .webp extension", () => {
