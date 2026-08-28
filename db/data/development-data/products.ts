@@ -32,7 +32,7 @@ const products: ProductSeed[] = [
     name: "triceratops sticker",
     description: "a sticker of a triceratops",
     price: 899,
-    active: true,
+    active: false,
     isNew: false,
     createdAt: "2024-01-03T00:00:00.000Z",
   },

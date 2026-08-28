@@ -23,7 +23,7 @@ const bundles: BundleSeed[] = [
     slug: "cretaceous-dinosaurs",
     description: "cretaceous dinosaurs r cool",
     price: 3099,
-    active: true,
+    active: false,
     isNew: false,
     createdAt: "2026-02-02T00:00:00.000Z",
   },

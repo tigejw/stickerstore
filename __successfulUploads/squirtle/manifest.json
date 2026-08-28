@@ -1,0 +1,12 @@
+{
+  "type": "product",
+  "slug": "squirtle",
+  "name": "Squirtle",
+  "description": "My starter!",
+  "price": 350,
+  "altText": {
+    "thumbnail.jpeg": "Squirtle sticker thumbnail",
+    "0.jpeg": "Overhead shot of the Squirtle sticker",
+    "1.jpeg": "Close-up shot of the Squirtle sticker"
+  }
+}
