@@ -3,6 +3,8 @@ import path from 'path';
 
 import { discoverEntryFolders } from '../../../src/scripts/upload/discoverEntryFolders';
 
+jest.mock('fs');
+
 const discoverFoldersMockedFs = fs as jest.Mocked<typeof fs>;
 
 describe('discoverEntryFolders', () => {
