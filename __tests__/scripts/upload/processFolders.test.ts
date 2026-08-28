@@ -69,7 +69,7 @@ describe('processFolder', () => {
 
   afterEach(() => jest.resetAllMocks());
 
-  it('processes a product folder end-to-end: validate, convert, upload, insert, move', async () => {
+  test('processes a product folder end-to-end: validate, convert, upload, insert, move', async () => {
     await processFolder('productsUpload/spinosaurus', deps);
 
     expect(mockedReadManifest).toHaveBeenCalledWith('productsUpload/spinosaurus/manifest.json');
@@ -93,7 +93,7 @@ describe('processFolder', () => {
     );
   });
 
-  it('calls insertBundleWithImages instead, for a bundle entry', async () => {
+  test('calls insertBundleWithImages instead, for a bundle entry', async () => {
     const bundleEntry = { ...productEntry, type: 'bundle', productSlugs: ['spinosaurus', 'trex'] };
     mockedReadManifest.mockReturnValue(bundleEntry);
 
@@ -105,7 +105,7 @@ describe('processFolder', () => {
     expect(mockedInsertProductWithImages).not.toHaveBeenCalled();
   });
 
-  it('does not move the folder if validation fails', async () => {
+  test('does not move the folder if validation fails', async () => {
     mockedValidateManifestEntry.mockImplementation(() => {
       throw new Error('Missing altText for file(s): 0.png');
     });
@@ -115,14 +115,14 @@ describe('processFolder', () => {
     expect(mockedUploadImage).not.toHaveBeenCalled();
   });
 
-  it('does not move the folder if the DB insert fails', async () => {
+  test('does not move the folder if the DB insert fails', async () => {
     mockedInsertProductWithImages.mockRejectedValue(new Error('Failed to insert product'));
 
     await expect(processFolder('productsUpload/spinosaurus', deps)).rejects.toThrow(/failed to insert product/i);
     expect(mockedMoveToSuccessfulUploads).not.toHaveBeenCalled();
   });
 
-  it('does not attempt DB insert if an image upload fails', async () => {
+  test('does not attempt DB insert if an image upload fails', async () => {
     mockedUploadImage.mockRejectedValueOnce(new Error('Failed to upload image'));
 
     await expect(processFolder('productsUpload/spinosaurus', deps)).rejects.toThrow(/failed to upload image/i);
