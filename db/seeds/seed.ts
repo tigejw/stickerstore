@@ -47,7 +47,7 @@ const seed = (opts: Record<string, unknown> = {}) => {
           image_url VARCHAR NOT NULL,
           alt_text VARCHAR NOT NULL,
           is_thumbnail BOOLEAN NOT NULL DEFAULT FALSE,
-          display_order INT NOT NULL DEFAULT 0,
+          display_order INT DEFAULT 0,
           created_at TIMESTAMP DEFAULT NOW()
         );`,
       );
@@ -81,7 +81,7 @@ const seed = (opts: Record<string, unknown> = {}) => {
           image_url VARCHAR NOT NULL,
           alt_text VARCHAR NOT NULL,
           is_thumbnail BOOLEAN NOT NULL DEFAULT FALSE,
-          display_order INT NOT NULL DEFAULT 0,
+          display_order INT DEFAULT 0,
           created_at TIMESTAMP DEFAULT NOW()
         );`,
       );
