@@ -75,8 +75,63 @@ describe("GET /api/bundles", () => {
                 display_order: 2,
               },
             ],
+            products: [
+              {
+                product_id: 2,
+                slug: "tyrannosaurus-rex",
+                name: "tyrannosaurus rex sticker",
+                description: "a sticker of a tyrannosaurus rex",
+                price: 999,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: true,
+                thumbnail_url: "tyrannosaurus-rex-thumb.png",
+                thumbnail_alt_text: "tyrannosaurus rex sticker roaring",
+              },
+              {
+                product_id: 4,
+                slug: "velociraptor",
+                name: "velociraptor sticker",
+                description: "a sticker of a velociraptor",
+                price: 849,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: false,
+                thumbnail_url: "velociraptor-thumb.png",
+                thumbnail_alt_text: "velociraptor sticker running",
+              },
+              {
+                product_id: 11,
+                slug: "allosaurus",
+                name: "allosaurus sticker",
+                description: "a sticker of an allosaurus",
+                price: 919,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: false,
+                thumbnail_url: "allosaurus-thumb.png",
+                thumbnail_alt_text: "allosaurus sticker open mouth",
+              },
+              {
+                product_id: 12,
+                slug: "carnotaurus",
+                name: "carnotaurus sticker",
+                description: "a sticker of a carnotaurus",
+                price: 889,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: false,
+                thumbnail_url: "carnotaurus-thumb.png",
+                thumbnail_alt_text: "carnotaurus sticker horned face",
+              },
+            ],
           }),
         );
+
         expect(body[1]).toEqual(
           expect.objectContaining({
             bundle_id: 2,
@@ -84,7 +139,7 @@ describe("GET /api/bundles", () => {
             name: "Cretaceous Dinosaurs",
             description: "cretaceous dinosaurs r cool",
             price: 3099,
-            active: true,
+            active: false,
             is_new: false,
             created_at: expect.any(String),
             thumbnail_url: "cretaceous-bundle-thumb.png",
@@ -101,6 +156,60 @@ describe("GET /api/bundles", () => {
                 alt_text: "cretaceous dinosaur sticker bundle laid out",
                 is_thumbnail: false,
                 display_order: 1,
+              },
+            ],
+            products: [
+              {
+                product_id: 1,
+                slug: "spinosaurus",
+                name: "spinosaurus sticker",
+                description: "a sticker of a spinosaurus",
+                price: 899,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: true,
+                thumbnail_url: "spinosaurus-thumb.png",
+                thumbnail_alt_text: "spinosaurus sticker front view",
+              },
+              {
+                product_id: 3,
+                slug: "triceratops",
+                name: "triceratops sticker",
+                description: "a sticker of a triceratops",
+                price: 899,
+                size: null,
+                active: false,
+                created_at: expect.any(String),
+                is_new: false,
+                thumbnail_url: "triceratops-thumb.png",
+                thumbnail_alt_text: "triceratops sticker side profile",
+              },
+              {
+                product_id: 8,
+                slug: "parasaurolophus",
+                name: "parasaurolophus sticker",
+                description: "a sticker of a parasaurolophus",
+                price: 899,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: false,
+                thumbnail_url: "parasaurolophus-thumb.png",
+                thumbnail_alt_text: "parasaurolophus sticker crest detail",
+              },
+              {
+                product_id: 9,
+                slug: "iguanodon",
+                name: "iguanodon sticker",
+                description: "a sticker of an iguanodon",
+                price: 829,
+                size: null,
+                active: true,
+                created_at: expect.any(String),
+                is_new: false,
+                thumbnail_url: "iguanodon-thumb.png",
+                thumbnail_alt_text: "iguanodon sticker standing pose",
               },
             ],
           }),
@@ -146,8 +255,11 @@ describe("GET /api/bundles", () => {
       return request(app)
         .get("/api/bundles?active=true")
         .expect(200)
-        .then(({ body }) => {
-          expect(body).toHaveLength(2);
+       .then(({ body }) => {
+          expect(body).toHaveLength(1);
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "jurassic-dinosaurs",
+          ]);
           expect(
             body.every((bundle: { active: boolean }) => bundle.active),
           ).toBe(true);
@@ -159,7 +271,13 @@ describe("GET /api/bundles", () => {
         .get("/api/bundles?active=false")
         .expect(200)
         .then(({ body }) => {
-          expect(body).toEqual([]);
+             expect(body).toHaveLength(1);
+          expect(body.map((bundle: { slug: string }) => bundle.slug)).toEqual([
+            "cretaceous-dinosaurs",
+          ]);
+          expect(
+            body.every((bundle: { active: boolean }) => bundle.active === false),
+          ).toBe(true);
         });
     });
 

@@ -1,0 +1,11 @@
+{
+  "type": "product",
+  "slug": "bulbasaur",
+  "name": "Bulbasaur",
+  "description": "A grass Pokemon!",
+  "price": 333,
+  "altText": {
+    "thumbnail.png": "bulbasaur sticker thumbnail",
+    "0.jpg": "Overhead shot of the bulbasaur sticker"
+  }
+}
