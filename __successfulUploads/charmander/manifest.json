@@ -1,0 +1,11 @@
+{
+  "type": "product",
+  "slug": "charmander",
+  "name": "Charmander",
+  "description": "A fire Pokemon!",
+  "price": 333,
+  "altText": {
+    "thumbnail.png": "charmander sticker thumbnail",
+    "0.png": "Overhead shot of the charmander sticker"
+  }
+}

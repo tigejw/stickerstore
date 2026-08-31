@@ -126,7 +126,7 @@ describe("GET /api/products", () => {
         .get("/api/products?active=true")
         .expect(200)
         .then(({ body }) => {
-          expect(body).toHaveLength(13);
+          expect(body).toHaveLength(12);
           expect(
             body.every((product: { active: boolean }) => product.active),
           ).toBe(true);
@@ -138,134 +138,137 @@ describe("GET /api/products", () => {
         .get("/api/products?active=false")
         .expect(200)
         .then(({ body }) => {
-          expect(body).toEqual([]);
-        });
-    });
-
-    test("200: sorts products by price ascending", () => {
-      return request(app)
-        .get("/api/products?sort_by=price&order=asc")
-        .expect(200)
-        .then(({ body }) => {
+          expect(body).toHaveLength(1);
           expect(
-            body.map((product: { price: number }) => product.price),
-          ).toEqual([
-            829, 849, 869, 879, 889, 899, 899, 899, 899, 919, 929, 949, 999,
-          ]);
+            body.every((product: { active: boolean }) => product.active),
+          ).toBe(false);
         });
     });
+  });
 
-    test("200: sorts products by price descending", () => {
-      return request(app)
-        .get("/api/products?sort_by=price&order=desc")
-        .expect(200)
-        .then(({ body }) => {
-          expect(
-            body.map((product: { price: number }) => product.price),
-          ).toEqual([
-            999, 949, 929, 919, 899, 899, 899, 899, 889, 879, 869, 849, 829,
-          ]);
-        });
-    });
+  test("200: sorts products by price ascending", () => {
+    return request(app)
+      .get("/api/products?sort_by=price&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.map((product: { price: number }) => product.price),
+        ).toEqual([
+          829, 849, 869, 879, 889, 899, 899, 899, 899, 919, 929, 949, 999,
+        ]);
+      });
+  });
 
-    test("200: sorts products by created_at ascending", () => {
-      return request(app)
-        .get("/api/products?sort_by=created_at&order=asc")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
-            [
-              "spinosaurus",
-              "tyrannosaurus-rex",
-              "triceratops",
-              "velociraptor",
-              "stegosaurus",
-              "brachiosaurus",
-              "ankylosaurus",
-              "parasaurolophus",
-              "iguanodon",
-              "diplodocus",
-              "allosaurus",
-              "carnotaurus",
-              "pachycephalosaurus",
-            ],
-          );
-        });
-    });
+  test("200: sorts products by price descending", () => {
+    return request(app)
+      .get("/api/products?sort_by=price&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.map((product: { price: number }) => product.price),
+        ).toEqual([
+          999, 949, 929, 919, 899, 899, 899, 899, 889, 879, 869, 849, 829,
+        ]);
+      });
+  });
 
-    test("200: sorts products by created_at descending", () => {
-      return request(app)
-        .get("/api/products?sort_by=created_at&order=desc")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
-            [
-              "pachycephalosaurus",
-              "carnotaurus",
-              "allosaurus",
-              "diplodocus",
-              "iguanodon",
-              "parasaurolophus",
-              "ankylosaurus",
-              "brachiosaurus",
-              "stegosaurus",
-              "velociraptor",
-              "triceratops",
-              "tyrannosaurus-rex",
-              "spinosaurus",
-            ],
-          );
-        });
-    });
+  test("200: sorts products by created_at ascending", () => {
+    return request(app)
+      .get("/api/products?sort_by=created_at&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+          [
+            "spinosaurus",
+            "tyrannosaurus-rex",
+            "triceratops",
+            "velociraptor",
+            "stegosaurus",
+            "brachiosaurus",
+            "ankylosaurus",
+            "parasaurolophus",
+            "iguanodon",
+            "diplodocus",
+            "allosaurus",
+            "carnotaurus",
+            "pachycephalosaurus",
+          ],
+        );
+      });
+  });
 
-    test("200: sorts products by name ascending", () => {
-      return request(app)
-        .get("/api/products?sort_by=name&order=asc")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
-            [
-              "allosaurus",
-              "ankylosaurus",
-              "brachiosaurus",
-              "carnotaurus",
-              "diplodocus",
-              "iguanodon",
-              "pachycephalosaurus",
-              "parasaurolophus",
-              "spinosaurus",
-              "stegosaurus",
-              "triceratops",
-              "tyrannosaurus-rex",
-              "velociraptor",
-            ],
-          );
-        });
-    });
+  test("200: sorts products by created_at descending", () => {
+    return request(app)
+      .get("/api/products?sort_by=created_at&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+          [
+            "pachycephalosaurus",
+            "carnotaurus",
+            "allosaurus",
+            "diplodocus",
+            "iguanodon",
+            "parasaurolophus",
+            "ankylosaurus",
+            "brachiosaurus",
+            "stegosaurus",
+            "velociraptor",
+            "triceratops",
+            "tyrannosaurus-rex",
+            "spinosaurus",
+          ],
+        );
+      });
+  });
 
-    test("200: sorts products by name descending", () => {
-      return request(app)
-        .get("/api/products?sort_by=name&order=desc")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.map((product: { slug: string }) => product.slug)).toEqual(
-            [
-              "velociraptor",
-              "tyrannosaurus-rex",
-              "triceratops",
-              "stegosaurus",
-              "spinosaurus",
-              "parasaurolophus",
-              "pachycephalosaurus",
-              "iguanodon",
-              "diplodocus",
-              "carnotaurus",
-              "brachiosaurus",
-              "ankylosaurus",
-              "allosaurus",
-            ],
-          );
-        });
-    });
+  test("200: sorts products by name ascending", () => {
+    return request(app)
+      .get("/api/products?sort_by=name&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+          [
+            "allosaurus",
+            "ankylosaurus",
+            "brachiosaurus",
+            "carnotaurus",
+            "diplodocus",
+            "iguanodon",
+            "pachycephalosaurus",
+            "parasaurolophus",
+            "spinosaurus",
+            "stegosaurus",
+            "triceratops",
+            "tyrannosaurus-rex",
+            "velociraptor",
+          ],
+        );
+      });
+  });
+
+  test("200: sorts products by name descending", () => {
+    return request(app)
+      .get("/api/products?sort_by=name&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.map((product: { slug: string }) => product.slug)).toEqual(
+          [
+            "velociraptor",
+            "tyrannosaurus-rex",
+            "triceratops",
+            "stegosaurus",
+            "spinosaurus",
+            "parasaurolophus",
+            "pachycephalosaurus",
+            "iguanodon",
+            "diplodocus",
+            "carnotaurus",
+            "brachiosaurus",
+            "ankylosaurus",
+            "allosaurus",
+          ],
+        );
+      });
   });
 });
