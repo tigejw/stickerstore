@@ -30,7 +30,7 @@ export const notifyMe = async (sessionID: string) => {
 
 }
 
-export const sendOrderConfirmationEmail = async (order: Order){
+export const sendOrderConfirmationEmail = async (order: Order) => {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { id, customerEmail, shippingDetails, items, amountTotal, currency } = order
 
