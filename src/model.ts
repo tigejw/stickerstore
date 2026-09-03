@@ -53,7 +53,6 @@ interface BundleImage {
   display_order: number;
 }
 
-
 interface Bundle {
   bundle_id: number;
   slug: string;
@@ -67,7 +66,6 @@ interface Bundle {
   thumbnail_alt_text: string;
   images: BundleImage[];
 }
-
 
 interface BundleProductSummary {
   product_id: number;
@@ -127,7 +125,7 @@ const allowedBundleSortColumns: Record<
 > = {
   created_at: "bundles.created_at",
   name: "bundles.name",
-  price: "bundles.price"
+  price: "bundles.price",
 };
 
 const allowedBundleOrderDirections: Record<
@@ -143,7 +141,6 @@ interface OrderItemMetadata {
   id: number;
   quantity: number;
 }
-
 
 const parseBooleanQuery = (value: string | undefined) => {
   if (value === undefined) {
@@ -631,7 +628,9 @@ export function selectBundleById(bundleId: number) {
   });
 }
 
-export function selectCheckoutItems(items: CheckoutItemInput[]): Promise<CheckoutItem[]> {
+export function selectCheckoutItems(
+  items: CheckoutItemInput[],
+): Promise<CheckoutItem[]> {
   return Promise.all(
     items.map((item) => {
       const itemId = Number(item.id);
@@ -639,7 +638,10 @@ export function selectCheckoutItems(items: CheckoutItemInput[]): Promise<Checkou
       if (item.type === "product") {
         return selectProductById(itemId).then((product) => {
           if (!product || !product.active) {
-            return Promise.reject({ status: 400, msg: "One or more items are unavailable" });
+            return Promise.reject({
+              status: 400,
+              msg: "One or more items are unavailable",
+            });
           }
           return {
             type: "product" as const,
@@ -651,7 +653,10 @@ export function selectCheckoutItems(items: CheckoutItemInput[]): Promise<Checkou
 
       return selectBundleById(itemId).then((bundle) => {
         if (!bundle || !bundle.active) {
-          return Promise.reject({ status: 400, msg: "One or more items are unavailable" });
+          return Promise.reject({
+            status: 400,
+            msg: "One or more items are unavailable",
+          });
         }
         return {
           type: "bundle" as const,
@@ -662,10 +667,32 @@ export function selectCheckoutItems(items: CheckoutItemInput[]): Promise<Checkou
     }),
   );
 }
+interface ShippingDetails {
+  line1: string;
+  line2: string | null;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+type FulfillOrderResult =
+  | {
+      status: "created";
+      order: Order
+    }
+  | { status: "duplicate" };
+
+export type Order = {
+  id: number;
+  customerEmail: string;
+  shippingDetails: ShippingDetails;
+  items: OrderItemMetadata[];
+  amountTotal: number | null;
+  currency: string | null;
+};
 
 export const fulfillOrder = async (
   fullSession: Stripe.Session,
-): Promise<void> => {
+): Promise<FulfillOrderResult> => {
   const shippingDetails = fullSession.collected_information?.shipping_details;
   const shippingAddress = shippingDetails?.address;
   const customerEmail = fullSession.customer_details?.email;
@@ -718,7 +745,7 @@ export const fulfillOrder = async (
         `Order for session ${fullSession.id} already exists, skipping.`,
       );
       await client.query("ROLLBACK");
-      return;
+      return { status: "duplicate" };
     }
 
     const orderResult = await client.query(
@@ -742,7 +769,7 @@ export const fulfillOrder = async (
         fullSession.amount_total,
         fullSession.amount_subtotal,
         fullSession.payment_status,
-        "not shipped"
+        "not shipped",
       ],
     );
 
@@ -767,7 +794,24 @@ export const fulfillOrder = async (
     }
 
     await client.query("COMMIT");
-    notifyMe(fullSession.id)
+    notifyMe(fullSession.id);
+    return {
+      status: "created",
+      order: {
+        id: orderId,
+        customerEmail,
+        shippingDetails: {
+          line1: shippingAddress.line1,
+          line2: shippingAddress.line2 ?? null,
+          city: shippingAddress.city,
+          postalCode: shippingAddress.postal_code,
+          country: shippingAddress.country,
+        },
+        items,
+        amountTotal: fullSession.amount_total,
+        currency: fullSession.currency,
+      },
+    };
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
@@ -775,4 +819,3 @@ export const fulfillOrder = async (
     client.release();
   }
 };
-
