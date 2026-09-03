@@ -16,7 +16,7 @@ if (!process.env.DATABASE_URL && !process.env.PGDATABASE) {
 const config: PoolConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }, 
-  max: 1,                    
+  max: 2,                    
   idleTimeoutMillis: 30000,   
   connectionTimeoutMillis: 5000,
 };

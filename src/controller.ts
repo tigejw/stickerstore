@@ -12,6 +12,7 @@ import {
   type CheckoutItemInput,
   fulfillOrder,
 } from "./model";
+import { sendOrderConfirmationEmail } from "./utils/utils";
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -47,7 +48,7 @@ export const getProducts = (
   next: NextFunction,
 ) => {
   const { sort_by, order, active, is_new } = req.query as ProductsQuery;
-  
+
   selectAllProducts({ sort_by, order, active, is_new })
     .then((productsData) => {
       res.status(200).send(productsData);
@@ -160,7 +161,10 @@ export const createWebhookSession = (
 
       const orderMetadata = checkoutItems.map((item) => ({
         type: item.type,
-        id: item.type === "product" ? item.product.product_id : item.bundle.bundle_id,
+        id:
+          item.type === "product"
+            ? item.product.product_id
+            : item.bundle.bundle_id,
         quantity: item.quantity,
       }));
 
@@ -173,7 +177,7 @@ export const createWebhookSession = (
           allowed_countries: ["DE", "FR", "GB"],
         },
         customer_creation: "always",
-          metadata: {
+        metadata: {
           items: JSON.stringify(orderMetadata),
         },
       });
@@ -216,17 +220,34 @@ export const handleStripeWebhook = async (
       const session = event.data.object as { id: string };
 
       try {
-        const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
-          expand: ["line_items", "line_items.data.price.product", "customer_details"],
-        });
+        const fullSession = await stripe.checkout.sessions.retrieve(
+          session.id,
+          {
+            expand: [
+              "line_items",
+              "line_items.data.price.product",
+              "customer_details",
+            ],
+          },
+        );
 
-        await fulfillOrder(fullSession);
+        const result = await fulfillOrder(fullSession);
+        if (result.status === "created") {
+          try {
+            await sendOrderConfirmationEmail(result.order);
+          } catch (emailErr) {
+            console.error(
+              `Failed to send confirmation email for session ${session.id}:`,
+              emailErr,
+            );
+          }
+        }
       } catch (err: unknown) {
-         console.error(`FULFILLMENT FAILED for session ${session.id}:`, err);
+        console.error(`FULFILLMENT FAILED for session ${session.id}:`, err);
         next(err);
         return;
       }
     }
-  };
+  }
   res.status(200).json({ received: true });
-}
+};
