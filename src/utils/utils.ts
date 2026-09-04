@@ -1,7 +1,7 @@
 import format from "pg-format";
 import db from "../../db/connection";
 import { Resend } from "resend";
-import { type Order} from "../model"
+import { type Order } from "../model"
 
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
@@ -34,24 +34,28 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { id, customerEmail, shippingDetails, items, amountTotal, currency } = order
 
-   const formattedTotal =
+  const formattedTotal =
     order.amountTotal != null
       ? new Intl.NumberFormat("en-GB", {
-          style: "currency",
-          currency: order.currency?.toUpperCase() ?? "EUR",
-        }).format(order.amountTotal / 100)
+        style: "currency",
+        currency: order.currency?.toUpperCase() ?? "EUR",
+      }).format(order.amountTotal / 100)
       : "N/A";
 
-  const itemsHtml = order.items
+  console.log(items)
+  const itemsHtml = items
     .map((item) => `<li>${item.quantity} x ${item.type} (id: ${item.id})</li>`)
     .join("");
+
 
   const { error } = await resend.emails.send({
     from: "Stickerstore <onboarding@resend.dev>",
     to: [order.customerEmail],
     subject: `Your order #${order.id}`,
     html: `
-      <p>thankyou for your order!</p>
+      <p>Hey! Even though our store isn't live yet, thanks for checkout out our order functionality!</p>
+      <p>To confirm, you won't be recieving any stickers and no money will be taken from your bank account, this transaction has occured within Stripes test mode!
+
       <ul>${itemsHtml}</ul>
       <p><strong>Total:</strong> ${formattedTotal}</p>
       <p><strong>Shipping to:</strong><br/>
