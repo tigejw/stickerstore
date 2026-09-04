@@ -1,6 +1,8 @@
 import format from "pg-format";
 import db from "../../db/connection";
 import { Resend } from "resend";
+import { type Order} from "../model"
+
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
     .query(format("SELECT * FROM %I WHERE %I = $1", table, column), [value])
@@ -27,3 +29,43 @@ export const notifyMe = async (sessionID: string) => {
   }
 
 }
+
+export const sendOrderConfirmationEmail = async (order: Order) => {
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const { id, customerEmail, shippingDetails, items, amountTotal, currency } = order
+
+   const formattedTotal =
+    order.amountTotal != null
+      ? new Intl.NumberFormat("en-GB", {
+          style: "currency",
+          currency: order.currency?.toUpperCase() ?? "EUR",
+        }).format(order.amountTotal / 100)
+      : "N/A";
+
+  const itemsHtml = order.items
+    .map((item) => `<li>${item.quantity} x ${item.type} (id: ${item.id})</li>`)
+    .join("");
+
+  const { error } = await resend.emails.send({
+    from: "Stickerstore <onboarding@resend.dev>",
+    to: [order.customerEmail],
+    subject: `Your order #${order.id}`,
+    html: `
+      <p>thankyou for your order!</p>
+      <ul>${itemsHtml}</ul>
+      <p><strong>Total:</strong> ${formattedTotal}</p>
+      <p><strong>Shipping to:</strong><br/>
+        ${order.shippingDetails.line1}<br/>
+        ${order.shippingDetails.line2 ? order.shippingDetails.line2 + "<br/>" : ""}
+        ${order.shippingDetails.city}, ${order.shippingDetails.postalCode}<br/>
+        ${order.shippingDetails.country}
+      </p>
+    `,
+  });
+
+  if (error) {
+    console.error({ error });
+    throw error;
+  }
+};
+
