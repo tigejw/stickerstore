@@ -61,7 +61,6 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { currency, items } = order
 
-  
   const formatCurrency = (amount: number, currency: string) =>
     new Intl.NumberFormat("en-GB", {
       style: "currency",
@@ -74,7 +73,6 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
     order.amountTotal != null && currency != null
       ? formatCurrency(order.amountTotal, currency)
       : "N/A";
-
 
   const itemsHtml = enrichedItems
     .map((item) => {
@@ -91,14 +89,9 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
     })
     .join("");
 
-
-  const { error } = await resend.emails.send({
-    from: "Stickerstore <onboarding@resend.dev>",
-    to: [order.customerEmail],
-    subject: `Your order #${order.id}`,
-    html: `
-      <p>Hey! Even though our store isn't live yet, thanks for checkout out our order functionality!</p>
-      <p>To confirm, you won't be recieving any stickers and no money will be taken from your bank account, this transaction has occured within Stripes test mode!
+  const html = `
+    <p>Hey! Even though our store isn't live yet, thanks for checking out websites functionality!</p>
+    <p>To confirm, you won't be recieving any stickers and no money will be taken from your bank account, this transaction has occured within Stripe's test mode!</p>
 
     <ul>${itemsHtml}</ul>
     <p><strong>Total:</strong> ${formattedTotal}</p>
@@ -116,7 +109,6 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
     subject: `Your order #${order.id}`,
     html,
   });
-
   if (error) {
     console.error({ error });
     throw error;

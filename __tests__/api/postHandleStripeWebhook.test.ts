@@ -5,6 +5,7 @@ import db from "../../db/connection";
 import Stripe from "stripe";
 import { stripe } from "../../src/controllers/handleStripeWebhook";
 
+const email = process.env.COMPANY_EMAIL
 beforeEach(() => {
     return seed();
 });
@@ -37,7 +38,7 @@ describe("POST /handle-stripe-webhook", () => {
             amount_subtotal: 899,
             payment_status: "paid",
             status: "complete",
-            customer_details: { email: "test@example.com" },
+            customer_details: { email: email },
             collected_information: {
                 shipping_details: {
                     address: {
@@ -81,7 +82,7 @@ describe("POST /handle-stripe-webhook", () => {
                 expect(orderResult.rows).toHaveLength(1);
                 expect(orderResult.rows[0]).toEqual(
                     expect.objectContaining({
-                        customer_email: "test@example.com",
+                        customer_email: email,
                         shipping_city: "Essen",
                         payment_status: "paid",
                     }),
@@ -149,7 +150,7 @@ describe("POST /handle-stripe-webhook", () => {
             amount_subtotal: 899,
             payment_status: "paid",
             status: "complete",
-            customer_details: { email: "dupe@example.com" },
+            customer_details: { email: email },
             collected_information: {
                 shipping_details: {
                     address: {
