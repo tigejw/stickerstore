@@ -1,5 +1,6 @@
 import express from "express"
-import {getProducts, getProductBySlug} from "../controller"
+import { getProducts } from "../controllers/getProducts"
+import { getProductBySlug } from "../controllers/getProductsBySlug"
 export const productRouter = express.Router()
 
 productRouter.get("/", getProducts)
