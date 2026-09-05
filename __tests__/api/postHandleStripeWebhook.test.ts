@@ -3,7 +3,6 @@ const app = require("../../src/app");
 import seed from "../../db/seeds/seed";
 import db from "../../db/connection";
 import Stripe from "stripe";
-import { stripe } from "../../src/controller";
 
 beforeEach(() => {
     return seed();
