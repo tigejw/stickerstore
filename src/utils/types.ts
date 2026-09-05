@@ -139,8 +139,10 @@ export type LineItem = {
   quantity: number;
 };
 
-
-
-
-
-
+export type EnrichedItem = OrderItemMetadata & {
+    name?: string;
+    slug?: string;
+    price?: number
+    thumbnailUrl?: string | null;
+    thumbnailAlt?: string | null;
+  };

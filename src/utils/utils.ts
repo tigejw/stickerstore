@@ -1,7 +1,11 @@
 import format from "pg-format";
 import db from "../../db/connection";
 import { Resend } from "resend";
-import { type Order, type BundlesQuery, type ProductsQuery } from "./types";
+import { type Order, type BundlesQuery, type ProductsQuery, type OrderItemMetadata, type EnrichedItem } from "./types";
+import { selectProductById } from "../models/selectProductById";
+import { selectBundleById } from "../models/selectBundleById";
+
+
 
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
@@ -30,21 +34,61 @@ export const notifyMe = async (sessionID: string) => {
 
 }
 
+const enrichItem = async (item: OrderItemMetadata): Promise<EnrichedItem> => {
+  try {
+    const details =
+      item.type === "product"
+        ? await selectProductById(item.id)
+        : await selectBundleById(item.id);
+
+    return {
+      ...item,
+      name: details?.name,
+      slug: details?.slug,
+      thumbnailUrl: details?.thumbnail_url ?? null,
+      thumbnailAlt: details?.thumbnail_alt_text ?? null,
+    };
+  } catch (err) {
+    console.error(
+      `Failed to fetch ${item.type} ${item.id} for order confirmation email:`,
+      err,
+    );
+    return { ...item };
+  }
+};
+
 export const sendOrderConfirmationEmail = async (order: Order) => {
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const { id, customerEmail, shippingDetails, items, amountTotal, currency } = order
+  const { currency, items } = order
+
+  
+  const formatCurrency = (amount: number, currency: string) =>
+    new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency: currency.toUpperCase(),
+    }).format(amount / 100);
+
+  const enrichedItems = await Promise.all(items.map(enrichItem));
 
   const formattedTotal =
-    order.amountTotal != null
-      ? new Intl.NumberFormat("en-GB", {
-        style: "currency",
-        currency: order.currency?.toUpperCase() ?? "EUR",
-      }).format(order.amountTotal / 100)
+    order.amountTotal != null && currency != null
+      ? formatCurrency(order.amountTotal, currency)
       : "N/A";
 
-  console.log(items)
-  const itemsHtml = items
-    .map((item) => `<li>${item.quantity} x ${item.type} (id: ${item.id})</li>`)
+
+  const itemsHtml = enrichedItems
+    .map((item) => {
+      const name = item.name ?? `${item.type} (id: ${item.id})`;
+      const lineTotal =
+        item.price != null && currency != null
+          ? formatCurrency(item.price * item.quantity, currency)
+          : "";
+      const thumbnail = item.thumbnailUrl
+        ? `<img src="${item.thumbnailUrl}" alt="${item.thumbnailAlt ?? name}" width="56" />`
+        : "";
+
+      return `<li>${thumbnail} ${item.quantity} x ${name} — ${lineTotal}</li>`;
+    })
     .join("");
 
 
@@ -53,19 +97,24 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
     to: [order.customerEmail],
     subject: `Your order #${order.id}`,
     html: `
-      <p>Hey! Even though our store isn't live yet, thanks for checking out websites functionality!</p>
+      <p>Hey! Even though our store isn't live yet, thanks for checkout out our order functionality!</p>
+      <p>To confirm, you won't be recieving any stickers and no money will be taken from your bank account, this transaction has occured within Stripes test mode!
 
-      <p>To confirm, you won't be recieving any stickers and no money will be taken from your bank account, this transaction has occured within Stripe's test mode!
+    <ul>${itemsHtml}</ul>
+    <p><strong>Total:</strong> ${formattedTotal}</p>
+    <p><strong>Shipping to:</strong><br/>
+      ${order.shippingDetails.line1}<br/>
+      ${order.shippingDetails.line2 ? order.shippingDetails.line2 + "<br/>" : ""}
+      ${order.shippingDetails.city}, ${order.shippingDetails.postalCode}<br/>
+      ${order.shippingDetails.country}
+    </p>
+  `;
 
-      <ul>${itemsHtml}</ul>
-      <p><strong>Total:</strong> ${formattedTotal}</p>
-      <p><strong>Shipping to:</strong><br/>
-        ${order.shippingDetails.line1}<br/>
-        ${order.shippingDetails.line2 ? order.shippingDetails.line2 + "<br/>" : ""}
-        ${order.shippingDetails.city}, ${order.shippingDetails.postalCode}<br/>
-        ${order.shippingDetails.country}
-      </p>
-    `,
+  const { error } = await resend.emails.send({
+    from: "Stickerstore <onboarding@resend.dev>",
+    to: [order.customerEmail],
+    subject: `Your order #${order.id}`,
+    html,
   });
 
   if (error) {
