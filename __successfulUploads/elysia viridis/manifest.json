@@ -1,0 +1,12 @@
+{
+  "type": "product",
+  "slug": "elysia-viridis",
+  "name": "Elysia Viridis",
+  "description": "My favourite sea slug!",
+  "price": 500,
+  "altText": {
+    "thumbnail.jpg": "Elysia Viridis sticker thumbnail",
+    "0.jpg": "Overhead shot of the Elysia Viridis sticker",
+    "1.jpeg": "Close-up shot of the Elysia Viridis sticker"
+  }
+}

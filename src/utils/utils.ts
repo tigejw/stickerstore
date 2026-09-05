@@ -1,7 +1,7 @@
 import format from "pg-format";
 import db from "../../db/connection";
 import { Resend } from "resend";
-import { type Order } from "../model"
+import { type Order, type BundlesQuery, type ProductsQuery } from "./types";
 
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
@@ -74,3 +74,113 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
   }
 };
 
+
+export const parseBooleanQuery = (value: string | undefined) => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw { status: 400, msg: "Invalid query!" };
+};
+
+export const allowedBundleSortColumns: Record<
+  NonNullable<BundlesQuery["sort_by"]>,
+  string
+> = {
+  created_at: "bundles.created_at",
+  name: "bundles.name",
+  price: "bundles.price",
+};
+
+export const allowedBundleOrderDirections: Record<
+  NonNullable<BundlesQuery["order"]>,
+  string
+> = {
+  asc: "ASC",
+  desc: "DESC",
+};
+
+export const parseBundleSortBy = (sortBy: BundlesQuery["sort_by"]) => {
+  if (sortBy === undefined) {
+    return "bundles.bundle_id";
+  }
+
+  const sortColumn = allowedBundleSortColumns[sortBy];
+
+  if (!sortColumn) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return sortColumn;
+};
+
+export const parseBundleOrder = (order: BundlesQuery["order"]) => {
+  if (order === undefined) {
+    return "ASC";
+  }
+
+  const orderDirection = allowedBundleOrderDirections[order];
+
+  if (!orderDirection) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return orderDirection;
+};
+
+
+
+export const allowedSortColumns: Record<
+  NonNullable<ProductsQuery["sort_by"]>,
+  string
+> = {
+  price: "products.price",
+  created_at: "products.created_at",
+  name: "products.name",
+};
+
+export const allowedOrderDirections: Record<
+  NonNullable<ProductsQuery["order"]>,
+  string
+> = {
+  asc: "ASC",
+  desc: "DESC",
+};
+
+
+
+export const parseSortBy = (sortBy: ProductsQuery["sort_by"]) => {
+  if (sortBy === undefined) {
+    return "products.product_id";
+  }
+
+  const sortColumn = allowedSortColumns[sortBy];
+
+  if (!sortColumn) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return sortColumn;
+};
+
+export const parseOrder = (order: ProductsQuery["order"]) => {
+  if (order === undefined) {
+    return "ASC";
+  }
+
+  const orderDirection = allowedOrderDirections[order];
+
+  if (!orderDirection) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return orderDirection;
+};

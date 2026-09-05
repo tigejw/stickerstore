@@ -1,7 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors"
 import apiRouter from "./routers/routes";
-import {handleStripeWebhook} from "./controller"
+import { handleStripeWebhook } from "./controllers/handleStripeWebhook";
 
 const app: Application = express();
 

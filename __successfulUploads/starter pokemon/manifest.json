@@ -1,0 +1,13 @@
+{
+  "type": "bundle",
+  "slug": "starter-pokemon",
+  "name": "Starter Pokemon Sticker Pack",
+  "description": "The starter pokemon from gen 1",
+  "price": 9100,
+  "productSlugs": ["squirtle", "charmander", "bulbasaur"],
+  "altText": {
+    "thumbnail.webp": "starter pokemon pack thumbnail",
+    "0.jpeg": "all the evolutions",
+    "1.jpg" : "funny drawings of the starters"
+  }
+}
