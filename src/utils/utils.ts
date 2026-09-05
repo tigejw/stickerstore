@@ -1,7 +1,7 @@
 import format from "pg-format";
 import db from "../../db/connection";
 import { Resend } from "resend";
-import { type Order} from "../model"
+import { type Order, type BundlesQuery, type ProductsQuery } from "./types";
 
 export const checkExists = (table: string, column: string, value: string | number) => {
   return db
@@ -34,24 +34,29 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { id, customerEmail, shippingDetails, items, amountTotal, currency } = order
 
-   const formattedTotal =
+  const formattedTotal =
     order.amountTotal != null
       ? new Intl.NumberFormat("en-GB", {
-          style: "currency",
-          currency: order.currency?.toUpperCase() ?? "EUR",
-        }).format(order.amountTotal / 100)
+        style: "currency",
+        currency: order.currency?.toUpperCase() ?? "EUR",
+      }).format(order.amountTotal / 100)
       : "N/A";
 
-  const itemsHtml = order.items
+  console.log(items)
+  const itemsHtml = items
     .map((item) => `<li>${item.quantity} x ${item.type} (id: ${item.id})</li>`)
     .join("");
+
 
   const { error } = await resend.emails.send({
     from: "Stickerstore <onboarding@resend.dev>",
     to: [order.customerEmail],
     subject: `Your order #${order.id}`,
     html: `
-      <p>thankyou for your order!</p>
+      <p>Hey! Even though our store isn't live yet, thanks for checking out websites functionality!</p>
+
+      <p>To confirm, you won't be recieving any stickers and no money will be taken from your bank account, this transaction has occured within Stripe's test mode!
+
       <ul>${itemsHtml}</ul>
       <p><strong>Total:</strong> ${formattedTotal}</p>
       <p><strong>Shipping to:</strong><br/>
@@ -69,3 +74,113 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
   }
 };
 
+
+export const parseBooleanQuery = (value: string | undefined) => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw { status: 400, msg: "Invalid query!" };
+};
+
+export const allowedBundleSortColumns: Record<
+  NonNullable<BundlesQuery["sort_by"]>,
+  string
+> = {
+  created_at: "bundles.created_at",
+  name: "bundles.name",
+  price: "bundles.price",
+};
+
+export const allowedBundleOrderDirections: Record<
+  NonNullable<BundlesQuery["order"]>,
+  string
+> = {
+  asc: "ASC",
+  desc: "DESC",
+};
+
+export const parseBundleSortBy = (sortBy: BundlesQuery["sort_by"]) => {
+  if (sortBy === undefined) {
+    return "bundles.bundle_id";
+  }
+
+  const sortColumn = allowedBundleSortColumns[sortBy];
+
+  if (!sortColumn) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return sortColumn;
+};
+
+export const parseBundleOrder = (order: BundlesQuery["order"]) => {
+  if (order === undefined) {
+    return "ASC";
+  }
+
+  const orderDirection = allowedBundleOrderDirections[order];
+
+  if (!orderDirection) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return orderDirection;
+};
+
+
+
+export const allowedSortColumns: Record<
+  NonNullable<ProductsQuery["sort_by"]>,
+  string
+> = {
+  price: "products.price",
+  created_at: "products.created_at",
+  name: "products.name",
+};
+
+export const allowedOrderDirections: Record<
+  NonNullable<ProductsQuery["order"]>,
+  string
+> = {
+  asc: "ASC",
+  desc: "DESC",
+};
+
+
+
+export const parseSortBy = (sortBy: ProductsQuery["sort_by"]) => {
+  if (sortBy === undefined) {
+    return "products.product_id";
+  }
+
+  const sortColumn = allowedSortColumns[sortBy];
+
+  if (!sortColumn) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return sortColumn;
+};
+
+export const parseOrder = (order: ProductsQuery["order"]) => {
+  if (order === undefined) {
+    return "ASC";
+  }
+
+  const orderDirection = allowedOrderDirections[order];
+
+  if (!orderDirection) {
+    throw { status: 400, msg: "Invalid query!" };
+  }
+
+  return orderDirection;
+};

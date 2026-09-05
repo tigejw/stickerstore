@@ -1,5 +1,6 @@
 import express from "express";
-import { getBundleBySlug, getBundles } from "../controller";
+import { getBundles } from "../controllers/getBundles";
+import { getBundleBySlug } from "../controllers/getBundlesBySlug";
 
 export const bundleRouter = express.Router();
 
