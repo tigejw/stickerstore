@@ -120,7 +120,7 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
                   style="display:block;width:100%;max-width:600px;height:auto;" />
                 <div style="padding:12px 32px;">
                   <span style="color:#ffffff;font-size:20px;font-weight:bold;letter-spacing:0.5px;">
-                   Thomas Wilson
+                   From Thomas Wilson, 
                  </span>
                 </div>
            </td>
@@ -190,7 +190,7 @@ export const sendOrderConfirmationEmail = async (order: Order) => {
   const { error } = await resend.emails.send({
     from: "Stickerstore <onboarding@resend.dev>",
     to: [order.customerEmail],
-    subject: `Your order #${order.id}`,
+    subject: "Thank you for checking out my Project!",
     html,
   });
   if (error) {
