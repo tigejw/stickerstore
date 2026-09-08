@@ -18,6 +18,12 @@ app.use(cors())
 
 //stripe listen --forward-to localhost:9090/handle-stripe-webhook in terminal for testing
 
+app.use((req, res, next) => {
+  (req as any)._startTime = Date.now();
+  console.log(`[TIMER] ${req.method} ${req.url} - request received  at ${Date.now()}`);
+  next();
+});
+
 app.post(
   "/handle-stripe-webhook",
   express.raw({ type: "application/json" }),

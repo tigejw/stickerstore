@@ -13,8 +13,16 @@ if (!process.env.DATABASE_URL && !process.env.PGDATABASE) {
 }
 
 
+
 const config: PoolConfig = {
   connectionString: process.env.DATABASE_URL,
+   idleTimeoutMillis: 0
 };
 
-export default new Pool(config);
+const pool = new Pool(config);
+
+pool.on('connect', () => {
+  console.log(`[TIMER] new client connected to Postgres at ${Date.now()}`);
+});
+
+export default pool;
