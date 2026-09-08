@@ -54,8 +54,11 @@ export function selectAllProducts({
     GROUP BY products.product_id
     ORDER BY ${sortColumn} ${sortDirection}
   `;
-
+  const t0 = Date.now();
   return db
     .query(dbQuery, queryValues)
-    .then((result) => result.rows as Product[]);
+    .then((result) => {
+      console.log(`[TIMER] pool.query executed in ${Date.now() - t0}ms  at ${Date.now()}`);
+      return result.rows as Product[]
+    });
 }
