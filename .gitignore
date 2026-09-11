@@ -1,2 +1,4 @@
 node_modules
 .env*
+__successfulUploads/
+__productsUpload/
