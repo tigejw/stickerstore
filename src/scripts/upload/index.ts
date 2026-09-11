@@ -37,14 +37,14 @@ function printSummary(results: FolderResult[]): void {
 async function main(): Promise<void> {
     const databaseUrl = requireEnv('DATABASE_URL');
     const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseServiceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseSecretKey = requireEnv('SUPABASE_SECRET_KEY');
 
     const pool = new Pool({
         connectionString: databaseUrl,
         ssl: { rejectUnauthorized: false },
     });
 
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const supabaseClient = createClient(supabaseUrl, supabaseSecretKey);
 
     try {
         const results = await processAllFolders(inputPath, {

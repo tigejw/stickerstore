@@ -77,8 +77,8 @@ export const createWebhookSession = (
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items,
-        success_url: "http://localhost:5173/success",
-        cancel_url: "http://localhost:5173/cart",
+        success_url: "http://cooliopetyx.com/success",
+        cancel_url: "http://cooliopetyx.com/cart",
         shipping_address_collection: {
           allowed_countries: ["DE", "FR", "GB"],
         },
